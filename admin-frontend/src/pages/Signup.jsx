@@ -6,34 +6,32 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Form.css';  // Import the shared form styles
 
 function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();  // Initialize navigation
+  const navigate = useNavigate();
 
-  // Function to handle signup form submission
   const handleSignup = async (e) => {
-  e.preventDefault();
-  try {
-    await axios.post('http://127.0.0.1:8000/api/signup/', {
-      username,
-      password,
-    });
-    alert('Signup successful. You can now log in.');
-    navigate('/login');
-  } catch (err) {
-    alert('Signup failed: ' + (err.response?.data?.error || err.message));
-  }
-};
-  
+    e.preventDefault();
+    try {
+      await axios.post('http://127.0.0.1:8000/api/signup/', {
+        username,
+        password,
+      });
+      alert('Signup successful. You can now log in.');
+      navigate('/login');
+    } catch (err) {
+      alert('Signup failed: ' + (err.response?.data?.error || err.message));
+    }
+  };
 
-  // Render the signup form
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px' }}>
+    <div className="form-container">
       <h2>Sign Up</h2>
       <form onSubmit={handleSignup}>
-        <div style={{ marginBottom: '10px' }}>
+        <div className="form-group">
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -41,10 +39,10 @@ function Signup() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
           />
         </div>
-        <div style={{ marginBottom: '10px' }}>
+
+        <div className="form-group">
           <label htmlFor="password">Password:</label>
           <input
             type="password"
@@ -52,10 +50,10 @@ function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
           />
         </div>
-        <button type="submit" style={{ width: '100%', padding: '10px' }}>Sign Up</button>
+
+        <button type="submit" className="form-button">Sign Up</button>
       </form>
     </div>
   );
