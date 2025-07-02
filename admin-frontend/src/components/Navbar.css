@@ -1,0 +1,27 @@
+/* File: src/components/Navbar.css */
+/* Styling for the navigation bar */
+
+.navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+}
+
+.navbar-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #007bff;
+}
