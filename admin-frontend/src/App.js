@@ -15,6 +15,7 @@ import PLDsList from './pages/PLDsList';
 import PLDCreate from './pages/PLDCreate';
 import AddBuilding from './pages/AddBuilding';
 import Footer from './components/Footer';
+import LandingPage from './pages/LandingPage';
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             <Route path="/plds" element={<PLDsList />} />
             <Route path="/plds/new" element={<PLDCreate />} />
             <Route path="/add-building" element={<AddBuilding />} />
+            <Route path="/" element={<LandingPage />} />
           </Routes>
         </main>
 

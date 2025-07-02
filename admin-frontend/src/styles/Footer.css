@@ -30,3 +30,11 @@
   text-decoration: underline;
   color: #0056b3;
 }
+
+.footer {
+  padding: 15px;
+  text-align: center;
+  background-color: #f1f1f1;
+  color: #333;
+  margin-top: auto;
+}

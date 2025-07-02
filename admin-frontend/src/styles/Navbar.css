@@ -11,6 +11,7 @@
   background-color: #004080; /* Dark blue background */
   padding: 15px 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 /* Brand or app title */
@@ -24,6 +25,7 @@
 .navbar-links {
   display: flex;
   gap: 20px; /* Space between links */
+  flex-wrap: wrap; /* Allow links to wrap if needed */
 }
 
 /* Individual link styling */
@@ -36,4 +38,36 @@
 
 .navbar-link:hover {
   color: #ffd700; /* Gold/yellow on hover */
+}
+
+/* Active link styling */
+.brand-link {
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}
+
+/* =========================
+   Responsive styles for smaller screens
+   ========================= */
+@media (max-width: 768px) {
+  /* Stack layout for navbar */
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Stack links vertically */
+  .navbar-links {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+    gap: 10px;
+  }
+
+  /* Full-width links for easier tap targets */
+  .navbar-link {
+    width: 100%;
+    padding: 10px 0;
+  }
 }
