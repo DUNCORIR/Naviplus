@@ -14,24 +14,26 @@ import Signup from './pages/Signup';
 import PLDsList from './pages/PLDsList';
 import PLDCreate from './pages/PLDCreate';
 import AddBuilding from './pages/AddBuilding';
-
-
+import Footer from './components/Footer';
 
 function App() {
   return (
     <Router>
       <Navbar />
+
+      {/* Define main page routes */}
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/buildings" element={<BuildingsList />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/buildings" element={<BuildingsList />} />
         <Route path="/plds" element={<PLDsList />} />
         <Route path="/plds/new" element={<PLDCreate />} />
         <Route path="/add-building" element={<AddBuilding />} />
-
-        {/* More routes will be added here */}
       </Routes>
+
+      {/* Footer should live outside Routes */}
+      <Footer />
     </Router>
   );
 }
