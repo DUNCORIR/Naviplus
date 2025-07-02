@@ -1,6 +1,6 @@
 // =========================
 // File: src/pages/Dashboard.jsx
-// Description: Simple admin dashboard with links to building management.
+// Description: Simple admin dashboard with separate layout for buttons.
 // =========================
 
 import React from 'react';
@@ -19,14 +19,15 @@ function Dashboard() {
     <div className="form-container">
       <h2>Welcome to Naviplus Admin Dashboard</h2>
 
-      <div className="dashboard-links">
-        <button
-          className="form-button"
-          style={{ marginRight: '10px' }}
-          onClick={() => navigate('/buildings')}
-        >
+      {/* Manage Buildings Button */}
+      <div style={{ marginBottom: '20px' }}>
+        <button className="form-button" onClick={() => navigate('/buildings')}>
           Manage Buildings
         </button>
+      </div>
+
+      {/* Logout Button */}
+      <div>
         <button className="form-button" onClick={handleLogout}>
           Logout
         </button>
