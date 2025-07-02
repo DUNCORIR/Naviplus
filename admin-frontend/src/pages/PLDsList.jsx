@@ -73,8 +73,8 @@ function PLDsList() {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Navigation buttons */}
-      <div style={{ marginBottom: '20px' }}>
-        <button onClick={() => navigate('/buildings')} className="form-button" style={{ marginRight: '10px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <button onClick={() => navigate('/buildings')} className="form-button">
           Back to Buildings
         </button>
         <button onClick={handleLogout} className="form-button logout-button">
@@ -95,7 +95,7 @@ function PLDsList() {
         <button type="submit" className="form-button">Add PLD</button>
       </form>
 
-      {/* PLD List */}
+      {/* List of PLDs */}
       <ul className="form-list">
         {plds.map((pld) => (
           <li key={pld.id} className="form-list-item">
