@@ -1,0 +1,32 @@
+/* ================================
+   File: src/styles/Footer.css
+   Description: Styles for the global footer component
+================================== */
+
+.footer-container {
+  background-color: #f1f1f1;
+  color: #333;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  border-top: 1px solid #ddd;
+  margin-top: 40px;
+}
+
+.footer-left {
+  font-weight: 500;
+}
+
+.footer-right a {
+  margin-left: 20px;
+  color: #007BFF;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-right a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
