@@ -73,7 +73,7 @@ function PLDsList() {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Navigation buttons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', width: '100%' }}>
         <button onClick={() => navigate('/buildings')} className="form-button">
           Back to Buildings
         </button>
