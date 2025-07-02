@@ -28,24 +28,23 @@ function PLDsList() {
 
     setBuildingId(id);
 
-    // Fetch PLDs for selected building
+    // Check for token
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
 
+    // Fetch PLDs
     api.get(`plds/?building_id=${id}`)
-      .then((res) => {
-        setPlds(res.data);
-      })
+      .then((res) => setPlds(res.data))
       .catch((err) => {
         console.error(err);
         setError('Failed to fetch PLDs');
       });
   }, [location, navigate]);
 
-  // Create a new PLD for this building
+  // Create a new PLD
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
@@ -61,11 +60,27 @@ function PLDsList() {
     }
   };
 
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <div className="form-container">
       <h2>Physical Location Descriptors (PLDs)</h2>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {/* Navigation buttons */}
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={() => navigate('/buildings')} className="form-button" style={{ marginRight: '10px' }}>
+          Back to Buildings
+        </button>
+        <button onClick={handleLogout} className="form-button logout-button">
+          Logout
+        </button>
+      </div>
 
       {/* Form to create new PLD */}
       <form onSubmit={handleCreate} className="form-inline">
@@ -80,7 +95,7 @@ function PLDsList() {
         <button type="submit" className="form-button">Add PLD</button>
       </form>
 
-      {/* List of PLDs */}
+      {/* PLD List */}
       <ul className="form-list">
         {plds.map((pld) => (
           <li key={pld.id} className="form-list-item">
