@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axiosConfig';
+import '../styles/Form.css'; // ✅ Apply shared styles
 
 function BuildingsList() {
   const [buildings, setBuildings] = useState([]);
@@ -13,6 +14,7 @@ function BuildingsList() {
   const [name, setName] = useState('');
   const navigate = useNavigate();
 
+  // Fetch buildings on page load
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -31,13 +33,13 @@ function BuildingsList() {
       });
   }, [navigate]);
 
-  // Handle logout and clear token
+  // Logout handler
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
 
-  // Handle building creation
+  // Create building handler
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
@@ -51,31 +53,36 @@ function BuildingsList() {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
+    <div className="form-container">
       <h2>Building List</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {/* Logout button */}
-      <button onClick={handleLogout} style={{ marginBottom: '20px' }}>Logout</button>
+      {/* Logout */}
+      <button onClick={handleLogout} className="form-button" style={{ marginBottom: '20px' }}>
+        Logout
+      </button>
 
-      {/* Create new building */}
-      <form onSubmit={handleCreate} style={{ marginBottom: '20px' }}>
+      {/* Create new building form */}
+      <form onSubmit={handleCreate} className="form-inline">
         <input
           type="text"
           placeholder="New building name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          style={{ marginRight: '10px', padding: '5px' }}
+          className="form-input"
         />
-        <button type="submit">Add Building</button>
+        <button type="submit" className="form-button">Add Building</button>
       </form>
 
-      <ul>
+      {/* List buildings */}
+      <ul className="form-list">
         {buildings.map((building) => (
-          <li key={building.id}>
-            {building.name} &nbsp;
-            <a href={`/plds?building_id=${building.id}`}>View PLDs</a>
+          <li key={building.id} className="form-list-item">
+            <strong>{building.name}</strong> — 
+            <a href={`/plds?building_id=${building.id}`} style={{ marginLeft: '8px' }}>
+              View PLDs
+            </a>
           </li>
         ))}
       </ul>

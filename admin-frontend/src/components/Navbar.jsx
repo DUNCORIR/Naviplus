@@ -1,25 +1,27 @@
 // =========================
-// File: src/components/Navbar.jsx
-// Description: Top navigation bar for switching between views.
+// File: src/components/NavBar.jsx
+// Description: Navigation bar with links to different app routes.
 // =========================
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Navbar.css'; 
+import '../styles/Navbar.css';  // Import the NavBar-specific styles
 
-function Navbar() {
+function NavBar() {
   return (
     <nav className="navbar">
-      <div className="navbar-container">
-        <Link to="/dashboard" className="nav-link">Dashboard</Link>
-        <Link to="/buildings" className="nav-link">Buildings</Link>
-        <Link to="/plds" className="nav-link">PLDs</Link>
-        <Link to="/add-building" className="nav-link">Add Building</Link>
-        <Link to="/signup" className="nav-link">Sign Up</Link>
-        <Link to="/login" className="nav-link">Logout</Link>
+      {/* App Title / Brand */}
+      <div className="navbar-brand">Naviplus</div>
+
+      {/* Navigation Links */}
+      <div className="navbar-links">
+        <Link to="/signup" className="navbar-link">Sign Up</Link>
+        <Link to="/login" className="navbar-link">Login</Link>
+        <Link to="/buildings" className="navbar-link">Manage Buildings</Link>
+        <Link to="/add-building" className="navbar-link">Add Building</Link>
       </div>
     </nav>
   );
 }
 
-export default Navbar;
+export default NavBar;

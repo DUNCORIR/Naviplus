@@ -1,80 +1,95 @@
 // =========================
 // File: src/pages/Login.jsx
-// Description: Admin login page with password visibility toggle and consistent styling.
+// Description: Admin login page to authenticate and retrieve token.
 // =========================
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import '../styles/Form.css';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Form.css'; // Global form styles
 
 function Login() {
+  // States to manage user input
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Toggle state
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false); // Toggle password visibility
 
+  const navigate = useNavigate(); // React Router hook to navigate pages
+
+  // Function to handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // Send login credentials to backend
       const response = await axios.post('http://127.0.0.1:8000/api/token-auth/', {
         username,
         password,
       });
+
+      // Store token in localStorage
       localStorage.setItem('token', response.data.token);
+
+      // Navigate to dashboard
       navigate('/dashboard');
-    } catch (err) {
-      setError('Invalid username or password');
-      console.error(err);
+    } catch (error) {
+      alert('Login failed: ' + (error.response?.data?.non_field_errors || error.message));
+      console.error(error);
     }
+  };
+
+  // Toggle visibility of the password field
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
     <div className="form-container">
-      <h2>Admin Login</h2>
-      {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+      {/* Page Title */}
+      <h2>Login</h2>
 
-      <form onSubmit={handleLogin} className="form-group">
+      {/* Login form */}
+      <form onSubmit={handleLogin}>
+        {/* Username field */}
         <div className="form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">Username:</label>
           <input
             id="username"
             type="text"
             className="form-input"
+            placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
 
+        {/* Password field */}
         <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{ flex: 1 }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                marginLeft: '10px',
-                padding: '8px',
-                fontSize: '12px',
-                cursor: 'pointer',
-              }}
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
+          <label htmlFor="password">Password:</label>
+          <input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            className="form-input"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
 
+        {/* Show/hide password toggle */}
+        <div style={{ marginBottom: '15px' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={togglePasswordVisibility}
+            />{' '}
+            Show Password
+          </label>
+        </div>
+
+        {/* Submit login button */}
         <button type="submit" className="form-button">Log In</button>
       </form>
     </div>
