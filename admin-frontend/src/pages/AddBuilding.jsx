@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Form.css';  // ✅ Import shared styling
 
 function AddBuilding() {
   const [name, setName] = useState('');
@@ -26,17 +27,17 @@ function AddBuilding() {
         }
       });
       alert('Building created successfully.');
-      navigate('/buildings'); // Redirect to building list
+      navigate('/buildings');
     } catch (error) {
       alert('Failed to create building: ' + (error.response?.data?.detail || error.message));
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto' }}>
+    <div className="form-container">
       <h2>Add New Building</h2>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
+        <div className="form-group">
           <label htmlFor="name">Building Name:</label>
           <input
             id="name"
@@ -44,10 +45,9 @@ function AddBuilding() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            style={{ width: '100%', padding: '8px' }}
           />
         </div>
-        <div style={{ marginBottom: '10px' }}>
+        <div className="form-group">
           <label htmlFor="location">Location:</label>
           <input
             id="location"
@@ -55,10 +55,9 @@ function AddBuilding() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             required
-            style={{ width: '100%', padding: '8px' }}
           />
         </div>
-        <button type="submit" style={{ padding: '10px', width: '100%' }}>Create Building</button>
+        <button type="submit" className="form-button">Create Building</button>
       </form>
     </div>
   );
