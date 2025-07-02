@@ -1,48 +1,90 @@
 // =========================
 // File: src/pages/PLDsList.jsx
-// Description: Lists all PLDs with their building name using token-based access.
+// Description: Lists and creates PLDs (location descriptors) for a selected building.
 // =========================
 
 import React, { useEffect, useState } from 'react';
-import axios from '../utils/axiosConfig';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../utils/axiosConfig';
+import '../styles/Form.css';
 
 function PLDsList() {
   const [plds, setPlds] = useState([]);
+  const [description, setDescription] = useState('');
+  const [buildingId, setBuildingId] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Extract building_id from query params
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const params = new URLSearchParams(location.search);
+    const id = params.get('building_id');
+
+    if (!id) {
+      setError('No building selected.');
+      return;
+    }
+
+    setBuildingId(id);
+
+    // Fetch PLDs for selected building
+    const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
 
-    axios.get('http://127.0.0.1:8000/api/plds/', {
-      headers: { Authorization: `Token ${token}` }
-    })
-    .then((response) => {
-      setPlds(response.data);
-    })
-    .catch((err) => {
+    api.get(`plds/?building_id=${id}`)
+      .then((res) => {
+        setPlds(res.data);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError('Failed to fetch PLDs');
+      });
+  }, [location, navigate]);
+
+  // Create a new PLD for this building
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('plds/', {
+        description,
+        building: buildingId,
+      });
+      setPlds([...plds, res.data]);
+      setDescription('');
+    } catch (err) {
+      alert('Failed to create PLD');
       console.error(err);
-      if (err.response?.status === 401) {
-        navigate('/login');
-      } else {
-        setError('Failed to load PLDs.');
-      }
-    });
-  }, [navigate]);
+    }
+  };
 
   return (
-    <div>
-      <h2>PLDs List</h2>
+    <div className="form-container">
+      <h2>Physical Location Descriptors (PLDs)</h2>
+
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <ul>
+
+      {/* Form to create new PLD */}
+      <form onSubmit={handleCreate} className="form-inline">
+        <input
+          type="text"
+          className="form-input"
+          placeholder="Enter PLD description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+        <button type="submit" className="form-button">Add PLD</button>
+      </form>
+
+      {/* List of PLDs */}
+      <ul className="form-list">
         {plds.map((pld) => (
-          <li key={pld.id}>
-            <strong>{pld.label}</strong> — Building ID: {pld.building}
+          <li key={pld.id} className="form-list-item">
+            {pld.description}
           </li>
         ))}
       </ul>
