@@ -1,59 +1,75 @@
 // =========================
 // File: src/pages/Login.jsx
-// Description: Admin login page to authenticate and retrieve token, then redirect.
+// Description: Admin login page with better layout, styling, and inline error handling.
 // =========================
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';  // React Router hook to navigate pages
+import '../styles/Form.css';  // Shared form styles
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  // Form input state
+  // State for input fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  // useNavigate allows redirecting after login
+  // Navigation and error handling
   const navigate = useNavigate();
+  const [error, setError] = useState('');
 
-  // Handle form submission for login
+  // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Send login request to Django API
       const response = await axios.post('http://127.0.0.1:8000/api/token-auth/', {
         username,
         password,
       });
 
-      // Save token to local storage
-      localStorage.setItem('Token', response.data.token);
-
-      // Redirect to dashboard
+      localStorage.setItem('token', response.data.token);
       navigate('/dashboard');
-    } catch (error) {
-      alert('Login failed: ' + error.message);
-      console.error(error);
+    } catch (err) {
+      setError('Invalid username or password');
+      console.error(err);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {/* Login form for username and password */}
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Username"
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        /><br />
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        /><br />
-        <button type="submit">Log In</button>
+    <div className="form-container">
+      <h2>Admin Login</h2>
+
+      {/* Inline error message */}
+      {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+
+      {/* Login form */}
+      <form onSubmit={handleLogin} className="form-group">
+        <div className="form-group">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            className="form-input"
+            placeholder="Enter username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            className="form-input"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <button type="submit" className="form-button">Log In</button>
       </form>
     </div>
   );
