@@ -1,94 +1,136 @@
-/* File: src/styles/Form.css */
-/* Common form styling for login and signup pages */
-
+/* ============================
+   Root Variables for Theme Colors
+   ============================ */
 :root {
-  --primary-color: #007BFF;       /* Bootstrap Blue */
-  --accent-color: #0056b3;        /* Darker blue for hover */
-  --background-color: #f4f6f8;    /* Light grey background */
-  --text-color: #333;             /* Standard readable text */
-  --button-text-color: white;
+  --primary-color: #007BFF;        /* Main action color (Bootstrap Blue) */
+  --accent-color: #0056b3;         /* Hover/darkened version of primary */
+  --background-color: #f4f6f8;     /* App background */
+  --text-color: #333;              /* Default readable text color */
+  --button-text-color: white;      /* Button text */
+  --input-bg: #ffffff;             /* Input field background */
+  --input-border: #ccc;            /* Input border color */
+  --card-bg: #ffffff;              /* Background for containers/forms/cards */
+  --shadow-color: rgba(0, 0, 0, 0.05);   /* Subtle shadow */
+  --shadow-hover: rgba(0, 0, 0, 0.1);    /* Hover shadow */
 }
 
-.form-container {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 30px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fafafa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+/* ============================
+   Global Body Styling
+   ============================ */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
+/* ============================
+   Container for all forms/pages
+   ============================ */
 .form-container {
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px var(--shadow-hover);
   max-width: 600px;
-  margin: 40px auto;
+  margin: 40px auto;  /* Center form */
 }
 
+/* ============================
+   Heading inside forms
+   ============================ */
 .form-container h2 {
   margin-bottom: 20px;
   text-align: center;
-  color: #333;
+  color: var(--text-color);
 }
 
+/* ============================
+   Group spacing between label & input
+   ============================ */
 .form-group {
   margin-bottom: 15px;
 }
 
+/* ============================
+   Label styling
+   ============================ */
 .form-group label {
   display: block;
   margin-bottom: 6px;
   font-weight: 500;
+  color: var(--text-color);
 }
 
+/* ============================
+   Input fields
+   ============================ */
 .form-group input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--input-border);
   border-radius: 5px;
+  background-color: var(--input-bg);
   box-sizing: border-box;
 }
 
+/* ============================
+   Primary button styling
+   ============================ */
 .form-button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   font-weight: bold;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
+/* ============================
+   Button hover effect
+   ============================ */
 .form-button:hover {
-  background-color: #0056b3;
+  background-color: var(--accent-color);
 }
 
+/* ============================
+   Inline form: input and button in row
+   ============================ */
 .form-inline {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
 
+/* ============================
+   Unordered list styling for items
+   ============================ */
 .form-list {
   list-style-type: none;
   padding: 0;
 }
 
+/* ============================
+   List item styling for PLDs/buildings
+   ============================ */
 .form-list-item {
   padding: 10px;
   margin-bottom: 8px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
+  background-color: var(--card-bg);
+  border: 1px solid var(--input-border);
   border-radius: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* ============================
+   Horizontal row of buttons (e.g., Back + Logout)
+   ============================ */
 .button-row {
   display: flex;
   justify-content: space-between;
@@ -96,12 +138,4 @@
   gap: 10px;
   width: 100%;
   margin-bottom: 20px;
-}
-
-body {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
 }
