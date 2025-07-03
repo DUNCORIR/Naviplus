@@ -1,30 +1,50 @@
 // =========================
-// File: src/components/NavBar.jsx
-// Description: Navigation bar with links to different app routes.
+// File: src/components/Navbar.jsx
+// Description: Responsive navigation bar with hamburger toggle
 // =========================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/Navbar.css';  // Import the NavBar-specific styles
+import '../styles/Navbar.css'; // Correctly linked style sheet
 
-function NavBar() {
+function Navbar() {
+  // State for toggling mobile menu visibility
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Function to toggle menu open/close
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  // Function to close menu when a link is clicked
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
   return (
     <nav className="navbar">
-      {/* App Title / Brand */}
+      {/* Brand logo or title */}
       <div className="navbar-brand">
         <Link to="/" className="navbar-link brand-link">Naviplus</Link>
       </div>
 
-      {/* Navigation Links */}
-      <div className="navbar-links">
-        <Link to="/" className="navbar-link">Home</Link>
-        <Link to="/signup" className="navbar-link">Sign Up</Link>
-        <Link to="/login" className="navbar-link">Login</Link>
-        <Link to="/buildings" className="navbar-link">Manage Buildings</Link>
-        <Link to="/add-building" className="navbar-link">Add Building</Link>
+      {/* Hamburger icon for mobile */}
+      <div className="navbar-toggle" onClick={toggleMenu}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      {/* Navigation links */}
+      <div className={`navbar-links ${menuOpen ? 'show' : ''}`}>
+        <Link to="/" className="navbar-link" onClick={closeMenu}>Home</Link>
+        <Link to="/signup" className="navbar-link" onClick={closeMenu}>Sign Up</Link>
+        <Link to="/login" className="navbar-link" onClick={closeMenu}>Login</Link>
+        <Link to="/buildings" className="navbar-link" onClick={closeMenu}>Manage Buildings</Link>
+        <Link to="/add-building" className="navbar-link" onClick={closeMenu}>Add Building</Link>
       </div>
     </nav>
   );
 }
 
-export default NavBar;
+export default Navbar;

@@ -1,6 +1,6 @@
 /* =========================
    File: src/styles/NavBar.css
-   Description: Styling for NavBar component
+   Description: Styling for NavBar component with responsive mobile menu
    ========================= */
 
 /* Main navbar container */
@@ -11,7 +11,7 @@
   background-color: #004080; /* Dark blue background */
   padding: 15px 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  flex-wrap: wrap; /* Allow wrapping on small screens */
+  position: relative;
 }
 
 /* Brand or app title */
@@ -25,7 +25,6 @@
 .navbar-links {
   display: flex;
   gap: 20px; /* Space between links */
-  flex-wrap: wrap; /* Allow links to wrap if needed */
 }
 
 /* Individual link styling */
@@ -39,7 +38,6 @@
 .navbar-link:hover {
   color: #ffd700; /* Gold/yellow on hover */
 }
-
 /* Active link styling */
 .brand-link {
   font-weight: bold;
@@ -47,27 +45,40 @@
   color: white;
 }
 
-/* =========================
-   Responsive styles for smaller screens
-   ========================= */
+/* Hamburger menu icon */
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.navbar-toggle span {
+  background: white;
+  height: 3px;
+  width: 25px;
+  border-radius: 2px;
+}
+
+/* Responsive behavior */
 @media (max-width: 768px) {
-  /* Stack layout for navbar */
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  /* Stack links vertically */
   .navbar-links {
+    display: none;
     flex-direction: column;
-    width: 100%;
-    margin-top: 10px;
-    gap: 10px;
+    background-color: #004080;
+    position: absolute;
+    top: 60px;
+    right: 30px;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   }
 
-  /* Full-width links for easier tap targets */
-  .navbar-link {
-    width: 100%;
-    padding: 10px 0;
+  .navbar-links.show {
+    display: flex;
+  }
+
+  .navbar-toggle {
+    display: flex;
   }
 }
