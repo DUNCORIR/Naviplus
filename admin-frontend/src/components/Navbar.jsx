@@ -1,41 +1,45 @@
 // =========================
 // File: src/components/Navbar.jsx
-// Description: Responsive navigation bar with hamburger toggle
+// Description: Responsive navigation bar with Naviplus logo and hamburger toggle
 // =========================
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/Navbar.css'; // Correctly linked style sheet
+import '../styles/Navbar.css'; // Import stylesheet
 
 function Navbar() {
-  // State for toggling mobile menu visibility
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // State to control mobile menu
 
-  // Function to toggle menu open/close
+  // Toggle menu visibility on mobile
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
-  // Function to close menu when a link is clicked
+  // Close menu when a link is clicked
   const closeMenu = () => {
     setMenuOpen(false);
   };
 
   return (
     <nav className="navbar">
-      {/* Brand logo or title */}
+      {/* Brand: logo + text */}
       <div className="navbar-brand">
+        <img
+          src="/images/naviplus-logo.png"
+          alt="Naviplus Logo"
+          className="navbar-logo"
+        />
         <Link to="/" className="navbar-link brand-link">Naviplus</Link>
       </div>
 
-      {/* Hamburger icon for mobile */}
+      {/* Hamburger icon for mobile view */}
       <div className="navbar-toggle" onClick={toggleMenu}>
         <span></span>
         <span></span>
         <span></span>
       </div>
 
-      {/* Navigation links */}
+      {/* Main navigation links */}
       <div className={`navbar-links ${menuOpen ? 'show' : ''}`}>
         <Link to="/" className="navbar-link" onClick={closeMenu}>Home</Link>
         <Link to="/signup" className="navbar-link" onClick={closeMenu}>Sign Up</Link>

@@ -82,3 +82,11 @@
     display: flex;
   }
 }
+
+/* Logo image next to brand name */
+.navbar-logo {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
