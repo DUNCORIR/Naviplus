@@ -4,8 +4,8 @@
 ================================== */
 
 .footer-container {
-  background-color: #f1f1f1;
-  color: #333;
+  background-color: #004080;        /* Updated: Deep blue to match navbar */
+  color: white;                     /* Updated: White text for contrast */
   padding: 15px 30px;
   display: flex;
   justify-content: space-between;
@@ -19,18 +19,20 @@
   font-weight: 500;
 }
 
+/* Right links section inside footer */
 .footer-right a {
   margin-left: 20px;
-  color: #ffffff;
+  color: #ffd700;                   /* Updated: Gold/yellow links for contrast */
   text-decoration: none;
   font-weight: 500;
 }
 
 .footer-right a:hover {
   text-decoration: underline;
-  color: #0056b3;
+  color: #ffffff;                   /* White on hover */
 }
 
+/* Backup footer class (not used but retained for fallback) */
 .footer {
   padding: 15px;
   text-align: center;
