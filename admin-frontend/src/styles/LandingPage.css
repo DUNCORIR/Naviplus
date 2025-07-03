@@ -30,3 +30,11 @@
   color: var(--primary-color);
   margin-bottom: 10px;
 }
+
+.hero-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}

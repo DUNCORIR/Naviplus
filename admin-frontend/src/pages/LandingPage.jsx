@@ -8,6 +8,10 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/LandingPage.css';
 import { FaBuilding, FaListUl, FaLock } from 'react-icons/fa'; // Feature icons
 
+// =========================
+// Component: LandingPage
+// Description: Entry page with branding, hero image, features, and navigation
+// =========================
 function LandingPage() {
   const navigate = useNavigate();
 
@@ -19,8 +23,15 @@ function LandingPage() {
 
   return (
     <div className="landing-container">
-      {/* Hero section */}
+      {/* =========================
+          Hero Section
+          ========================= */}
       <section className="landing-hero">
+        <img
+          src="/images/hero-building.jpg"
+          alt="Illustration of building navigation"
+          className="hero-image"
+        />
         <h1 className="landing-title">
           Welcome to <span className="brand-text">Naviplus</span>
         </h1>
@@ -29,7 +40,9 @@ function LandingPage() {
         </p>
       </section>
 
-      {/* Feature cards section */}
+      {/* =========================
+          Feature Cards Section
+          ========================= */}
       <section className="landing-features-section">
         <div className="feature-card">
           <FaBuilding className="feature-icon" />
@@ -47,7 +60,9 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* CTA buttons */}
+      {/* =========================
+          Call-to-Action Buttons Section
+          ========================= */}
       <section className="landing-buttons">
         <button onClick={goToLogin} className="form-button">Log In</button>
         <button onClick={goToSignup} className="form-button">Sign Up</button>
