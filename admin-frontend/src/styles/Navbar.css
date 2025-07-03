@@ -83,6 +83,17 @@
   }
 }
 
+/* Wrapper for logo image to enhance visibility */
+.navbar-logo-wrapper {
+  background-color: #ffffff;      /* White background for contrast */
+  padding: 6px;                   /* Padding around the logo */
+  border-radius: 8px;             /* Rounded corners */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
 /* Logo image next to brand name */
 .navbar-logo {
   height: 70px;
