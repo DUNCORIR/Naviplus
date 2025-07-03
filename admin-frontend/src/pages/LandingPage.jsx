@@ -6,6 +6,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LandingPage.css';
+import { FaBuilding, FaListUl, FaLock } from 'react-icons/fa'; // Feature icons
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -18,24 +19,35 @@ function LandingPage() {
 
   return (
     <div className="landing-container">
-      {/* Hero Section */}
+      {/* Hero section */}
       <section className="landing-hero">
-        <h1 className="landing-title">Welcome to <span className="brand-text">Naviplus</span></h1>
+        <h1 className="landing-title">
+          Welcome to <span className="brand-text">Naviplus</span>
+        </h1>
         <p className="landing-subtitle">
           A smart building management platform for tracking physical locations and descriptors.
         </p>
       </section>
 
-      {/* Features */}
+      {/* Feature cards section */}
       <section className="landing-features-section">
-        <ul className="landing-features">
-          <li>✅ Manage multiple buildings from one place</li>
-          <li>✅ Add and view PLDs (Physical Location Descriptors)</li>
-          <li>✅ Token-secured login for administrators</li>
-        </ul>
+        <div className="feature-card">
+          <FaBuilding className="feature-icon" />
+          <p><strong>Manage multiple buildings</strong> from one place</p>
+        </div>
+
+        <div className="feature-card">
+          <FaListUl className="feature-icon" />
+          <p><strong>Add and view PLDs</strong> (Physical Location Descriptors)</p>
+        </div>
+
+        <div className="feature-card">
+          <FaLock className="feature-icon" />
+          <p><strong>Token-secured login</strong> for administrators</p>
+        </div>
       </section>
 
-      {/* CTA Buttons */}
+      {/* CTA buttons */}
       <section className="landing-buttons">
         <button onClick={goToLogin} className="form-button">Log In</button>
         <button onClick={goToSignup} className="form-button">Sign Up</button>
