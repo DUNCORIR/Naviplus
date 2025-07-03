@@ -8,10 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/LandingPage.css';
 import { FaBuilding, FaListUl, FaLock } from 'react-icons/fa'; // Feature icons
 
-// =========================
-// Component: LandingPage
-// Description: Entry page with branding, hero image, features, and navigation
-// =========================
 function LandingPage() {
   const navigate = useNavigate();
 
@@ -24,8 +20,8 @@ function LandingPage() {
   return (
     <div className="landing-container">
       {/* =========================
-          Hero Section
-          ========================= */}
+          Hero Section with Image, Title, and Subtitle
+      ========================= */}
       <section className="landing-hero">
         <img
           src="/images/hero-building.jpg"
@@ -41,8 +37,8 @@ function LandingPage() {
       </section>
 
       {/* =========================
-          Feature Cards Section
-          ========================= */}
+          Feature Highlights Section
+      ========================= */}
       <section className="landing-features-section">
         <div className="feature-card">
           <FaBuilding className="feature-icon" />
@@ -61,11 +57,20 @@ function LandingPage() {
       </section>
 
       {/* =========================
-          Call-to-Action Buttons Section
-          ========================= */}
-      <section className="landing-buttons">
-        <button onClick={goToLogin} className="form-button">Log In</button>
-        <button onClick={goToSignup} className="form-button">Sign Up</button>
+          CTA Section: Sign Up & Log In
+      ========================= */}
+      <section className="landing-cta">
+        <div className="cta-block">
+          <h3>New to Naviplus?</h3>
+          <p>Create an account to start managing buildings and PLDs.</p>
+          <button onClick={goToSignup} className="form-button">Sign Up</button>
+        </div>
+
+        <div className="cta-block">
+          <h3>Already have an account?</h3>
+          <p>Log in to access your admin dashboard.</p>
+          <button onClick={goToLogin} className="form-button">Log In</button>
+        </div>
       </section>
     </div>
   );
