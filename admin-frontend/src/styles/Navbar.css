@@ -85,8 +85,8 @@
 
 /* Logo image next to brand name */
 .navbar-logo {
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
+  height: 28px;
+  width: auto;
+  margin-right: 8px;
   vertical-align: middle;
 }

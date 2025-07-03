@@ -35,6 +35,23 @@
   margin-bottom: 10px;
 }
 
+/* === Unique background colors for each card === */
+.feature-card:nth-child(1) {
+  background-color: #e0f2ff; /* Soft blue */
+  border-color: #b3e0ff;
+}
+
+.feature-card:nth-child(2) {
+  background-color: #e6fffa; /* Soft teal */
+  border-color: #b2f2e9;
+}
+
+.feature-card:nth-child(3) {
+  background-color: #fff5e6; /* Soft orange */
+  border-color: #ffd9b3;
+}
+
+
 .hero-image {
   width: 100%;
   max-height: 400px;
