@@ -5,24 +5,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-
+import 'voice_command_screen.dart';
 void main() {
   runApp(const NaviplusApp());
 }
 
-class NaviplusApp extends StatelessWidget {
-  const NaviplusApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Naviplus Mobile',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
       ),
       home: const WelcomeScreen(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -35,60 +33,36 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  final FlutterTts flutterTts = FlutterTts();
+  final FlutterTts _flutterTts = FlutterTts();
 
   @override
   void initState() {
     super.initState();
-    _speakWelcomeMessage();
+    _speakWelcome();
   }
 
-  // Function to speak the welcome message using flutter_tts
-  Future<void> _speakWelcomeMessage() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setPitch(1.0);
-    await flutterTts.speak("Welcome to Naviplus. Swipe right to scan building or swipe left for navigation assistance.");
+  Future<void> _speakWelcome() async {
+    await _flutterTts.speak("Welcome to Naviplus. Tap anywhere to continue.");
+  }
+
+  void _goToVoiceCommandScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const VoiceCommandScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Welcome to Naviplus',
-                style: TextStyle(
-                  fontSize: 26,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'A voice-assisted navigation tool for the visually impaired.',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white70,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () => flutterTts.speak("Scanning buildings not yet implemented."),
-                child: const Text('Scan Building'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => flutterTts.speak("Navigation assistance not yet implemented."),
-                child: const Text('Navigation Assistance'),
-              ),
-            ],
+    return GestureDetector(
+      onTap: _goToVoiceCommandScreen,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            'Welcome to Naviplus\nTap anywhere',
+            style: const TextStyle(fontSize: 24, color: Colors.white),
+            textAlign: TextAlign.center,
           ),
         ),
       ),
