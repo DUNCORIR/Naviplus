@@ -10,13 +10,13 @@ void main() {
   runApp(const NaviplusApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class  NaviplusApp extends StatelessWidget {
+  const NaviplusApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Naviplus Mobile',
+      title: 'Naviplus App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
       ),
