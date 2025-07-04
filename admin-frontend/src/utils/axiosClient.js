@@ -1,5 +1,5 @@
 // =========================
-// File: src/utils/axiosConfig.js
+// File: src/utils/axiosClient.js
 // Description: Configure axios with auth token from localStorage
 // =========================
 

@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/axiosConfig';
+import api from '../api/axiosClient';
 import '../styles/Form.css'; // ✅ Apply shared styles
 
 function BuildingsList() {
@@ -16,7 +16,7 @@ function BuildingsList() {
 
   // Fetch buildings on page load
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) {
       navigate('/login');
       return;
@@ -35,7 +35,7 @@ function BuildingsList() {
 
   // Logout handler
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     navigate('/login');
   };
 

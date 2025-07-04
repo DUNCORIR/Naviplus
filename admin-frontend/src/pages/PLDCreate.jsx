@@ -4,7 +4,7 @@
 // =========================
 
 import React, { useEffect, useState } from 'react';
-import axios from '../utils/axiosConfig';
+import axios from '../utils/axiosClient';
 import { useNavigate } from 'react-router-dom';
 
 function PLDCreate() {
