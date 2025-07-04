@@ -1,32 +1,32 @@
 // =========================
 // File: src/components/Navbar.jsx
-// Description: Responsive navigation bar with conditional links and logout
+// Description: Responsive navigation bar with Naviplus logo and hamburger toggle
 // =========================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../styles/Navbar.css'; // Global navbar styles
+import '../styles/Navbar.css'; // Import stylesheet
 
 function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false); // Controls mobile menu toggle
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
-  const token = localStorage.getItem('authToken'); // Get token to check auth state
 
-  // Toggle menu in mobile view
+  // On mount, check token presence
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    setIsAuthenticated(!!token); // Set true if token exists
+  }, []);
+
+  // Toggle mobile menu
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  // Close menu when a link is clicked
+  // Close menu
   const closeMenu = () => setMenuOpen(false);
-
-  // Handle logout: clear token and redirect to login
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    navigate('/login');
-  };
 
   return (
     <nav className="navbar">
-      {/* Brand: Logo + Title */}
+      {/* Logo and Brand */}
       <div className="navbar-brand">
         <div className="navbar-logo-wrapper">
           <img
@@ -38,45 +38,30 @@ function Navbar() {
         <Link to="/" className="navbar-link brand-link">Naviplus</Link>
       </div>
 
-      {/* Hamburger icon for mobile view */}
+      {/* Hamburger toggle */}
       <div className="navbar-toggle" onClick={toggleMenu}>
         <span></span>
         <span></span>
         <span></span>
       </div>
 
-      {/* Navigation links (conditionally shown based on login) */}
+      {/* Navigation Links */}
       <div className={`navbar-links ${menuOpen ? 'show' : ''}`}>
         <Link to="/" className="navbar-link" onClick={closeMenu}>Home</Link>
 
-        {token ? (
-          <Link to="/logout" className="navbar-link" onClick={() => {
-            localStorage.removeItem('authToken');
-            closeMenu();
-            window.location.href = "/login";
-          }}>Logout</Link>
-        ) : (
+        {/* Auth-specific links */}
+        {!isAuthenticated ? (
           <>
             <Link to="/login" className="navbar-link" onClick={closeMenu}>Login</Link>
             <Link to="/signup" className="navbar-link" onClick={closeMenu}>Sign Up</Link>
           </>
-        )}
-
-        {token && (
+        ) : (
           <>
-            <Link to="/dashboard" className="navbar-link" onClick={closeMenu}>Dashboard</Link>
             <Link to="/buildings" className="navbar-link" onClick={closeMenu}>Manage Buildings</Link>
             <Link to="/add-building" className="navbar-link" onClick={closeMenu}>Add Building</Link>
-            <span
-              className="navbar-link"
-              onClick={() => {
-                closeMenu();
-                handleLogout();
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              Logout
-            </span>
+
+            {/* Remove this Logout link if you prefer Logout button only in BuildingsList */}
+            {/* <button onClick={handleLogout} className="navbar-link logout-button">Logout</button> */}
           </>
         )}
       </div>
