@@ -27,7 +27,7 @@ function Login() {
       });
 
       // Store token in localStorage
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('authToken', response.data.token);
 
       // Navigate to dashboard
       navigate('/dashboard');
