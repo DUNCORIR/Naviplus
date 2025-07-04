@@ -4,20 +4,21 @@
 // =============================
 
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() {
-  runApp(const NaviPlusApp());
+  runApp(const NaviplusApp());
 }
 
-class NaviPlusApp extends StatelessWidget {
-  const NaviPlusApp({super.key});
+class NaviplusApp extends StatelessWidget {
+  const NaviplusApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Naviplus Assist',
+      title: 'Naviplus Mobile',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
         useMaterial3: true,
       ),
       home: const WelcomeScreen(),
@@ -26,73 +27,66 @@ class NaviPlusApp extends StatelessWidget {
   }
 }
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  final FlutterTts flutterTts = FlutterTts();
+
+  @override
+  void initState() {
+    super.initState();
+    _speakWelcomeMessage();
+  }
+
+  // Function to speak the welcome message using flutter_tts
+  Future<void> _speakWelcomeMessage() async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setPitch(1.0);
+    await flutterTts.speak("Welcome to Naviplus. Swipe right to scan building or swipe left for navigation assistance.");
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Main background layout
       backgroundColor: Colors.black,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Center(
-          // Vertically stacked content
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Welcome message
-              Text(
+              const Text(
                 'Welcome to Naviplus',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 26,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
-
-              const SizedBox(height: 24),
-
-              // Short description for the user
-              Text(
-                'Tap below to begin navigation or scan a building.',
-                style: TextStyle(fontSize: 18, color: Colors.white70),
+              const SizedBox(height: 20),
+              const Text(
+                'A voice-assisted navigation tool for the visually impaired.',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white70,
+                ),
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 40),
-
-              // CTA: Start Scanning
-              ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Navigate to Scan Building screen
-                },
-                icon: const Icon(Icons.camera_alt),
-                label: const Text('Scan Building'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 48),
-                  textStyle: const TextStyle(fontSize: 18),
-                ),
+              ElevatedButton(
+                onPressed: () => flutterTts.speak("Scanning buildings not yet implemented."),
+                child: const Text('Scan Building'),
               ),
-
               const SizedBox(height: 16),
-
-              // CTA: Navigation Help
-              ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Navigate to Navigation Assistance screen
-                },
-                icon: const Icon(Icons.navigation),
-                label: const Text('Navigation Assistance'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 48),
-                  textStyle: const TextStyle(fontSize: 18),
-                ),
+              ElevatedButton(
+                onPressed: () => flutterTts.speak("Navigation assistance not yet implemented."),
+                child: const Text('Navigation Assistance'),
               ),
             ],
           ),
