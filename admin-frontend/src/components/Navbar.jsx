@@ -49,7 +49,13 @@ function Navbar() {
       <div className={`navbar-links ${menuOpen ? 'show' : ''}`}>
         <Link to="/" className="navbar-link" onClick={closeMenu}>Home</Link>
 
-        {!token && (
+        {token ? (
+          <Link to="/logout" className="navbar-link" onClick={() => {
+            localStorage.removeItem('authToken');
+            closeMenu();
+            window.location.href = "/login";
+          }}>Logout</Link>
+        ) : (
           <>
             <Link to="/login" className="navbar-link" onClick={closeMenu}>Login</Link>
             <Link to="/signup" className="navbar-link" onClick={closeMenu}>Sign Up</Link>
