@@ -18,7 +18,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.authtoken.views import obtain_auth_token
+
+# ================== ViewSets ==================
 
 class BuildingViewSet(viewsets.ModelViewSet):
     """
@@ -33,9 +34,19 @@ class PLDViewSet(viewsets.ModelViewSet):
     """
     API endpoint to manage Physical Location Descriptors (PLDs).
     """
-    queryset = PLD.objects.all()
     serializer_class = PLDSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Optional filtering of PLDs by building ID via query param.
+        Example: /api/plds/?building=1
+        """
+        queryset = PLD.objects.all()
+        building_id = self.request.query_params.get('building')
+        if building_id:
+            queryset = queryset.filter(building_id=building_id)
+        return queryset
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -57,6 +68,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         """
         serializer.save(user=self.request.user)
 
+# ================== Custom Auth Endpoint ==================
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])  # Anyone can register
