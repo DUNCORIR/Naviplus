@@ -16,6 +16,7 @@ import PLDCreate from './pages/PLDCreate';
 import AddBuilding from './pages/AddBuilding';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
+import PrivateRoute from './components/PrivateRoute';
 
 
 function App() {
@@ -28,12 +29,18 @@ function App() {
         <main style={{ flex: '1' }}>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={
+              <PrivateRoute><Dashboard /></PrivateRoute>
+            } />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/buildings" element={<BuildingsList />} />
+            <Route path="/buildings" element={
+              <PrivateRoute><BuildingsList /></PrivateRoute>
+            } />
             <Route path="/plds" element={<PLDsList />} />
             <Route path="/plds/new" element={<PLDCreate />} />
-            <Route path="/add-building" element={<AddBuilding />} />
+            <Route path="/add-building" element={
+              <PrivateRoute><AddBuilding /></PrivateRoute>
+            } />
             <Route path="/" element={<LandingPage />} />
           </Routes>
         </main>
