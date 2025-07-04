@@ -117,3 +117,59 @@
   color: #666;
   margin-bottom: 15px;
 }
+
+/* CTA Section container */
+.landing-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Base CTA block styles */
+.cta-block {
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+/* Specific color for sign-up CTA */
+.cta-signup {
+  background-color: #e3f2fd; /* light blue */
+  color: #0d47a1;
+}
+
+/* Specific color for login CTA */
+.cta-login {
+  background-color: #fff3e0; /* light orange */
+  color: #e65100;
+}
+
+/* CTA Buttons */
+.cta-button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  background-color: #1565c0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #0d47a1;
+}
+
+/* Secondary button for login */
+.cta-button.secondary {
+  background-color: #ef6c00;
+}
+
+.cta-button.secondary:hover {
+  background-color: #e65100;
+}

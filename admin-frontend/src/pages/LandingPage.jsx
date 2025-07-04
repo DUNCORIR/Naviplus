@@ -1,12 +1,12 @@
 // =========================
 // File: src/pages/LandingPage.jsx
-// Description: Public-facing landing page that describes what the platform does and directs users to log in or sign up.
+// Description: Public-facing landing page describing Naviplus and guiding users to Sign Up or Log In.
 // =========================
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/LandingPage.css';
-import { FaBuilding, FaListUl, FaLock } from 'react-icons/fa'; // Feature icons
+import '../styles/LandingPage.css'; // Import styles
+import { FaBuilding, FaListUl, FaLock } from 'react-icons/fa'; // Icons for features
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ function LandingPage() {
   return (
     <div className="landing-container">
       {/* =========================
-          Hero Section with Image, Title, and Subtitle
+          Hero Section: Image, Title & Subtitle
       ========================= */}
       <section className="landing-hero">
         <img
@@ -37,7 +37,7 @@ function LandingPage() {
       </section>
 
       {/* =========================
-          Feature Highlights Section
+          Feature Highlights
       ========================= */}
       <section className="landing-features-section">
         <div className="feature-card">
@@ -57,19 +57,21 @@ function LandingPage() {
       </section>
 
       {/* =========================
-          CTA Section: Sign Up & Log In
+          Call-To-Action Section (Sign Up & Log In)
       ========================= */}
       <section className="landing-cta">
-        <div className="cta-block">
+        {/* CTA Block for Sign Up */}
+        <div className="cta-block cta-signup">
           <h3>New to Naviplus?</h3>
           <p>Create an account to start managing buildings and PLDs.</p>
-          <button onClick={goToSignup} className="form-button">Sign Up</button>
+          <button onClick={goToSignup} className="cta-button">Sign Up</button>
         </div>
 
-        <div className="cta-block">
+        {/* CTA Block for Log In */}
+        <div className="cta-block cta-login">
           <h3>Already have an account?</h3>
           <p>Log in to access your admin dashboard.</p>
-          <button onClick={goToLogin} className="form-button">Log In</button>
+          <button onClick={goToLogin} className="cta-button secondary">Log In</button>
         </div>
       </section>
     </div>
