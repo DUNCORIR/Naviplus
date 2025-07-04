@@ -23,3 +23,8 @@ html, body, #root {
   display: flex;
   flex-direction: column;
 }
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}

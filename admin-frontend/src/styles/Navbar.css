@@ -2,9 +2,13 @@
    File: src/styles/NavBar.css
    Description: Styling for NavBar component with responsive mobile menu
    ========================= */
-
-/* Main navbar container */
+   
+ /* Main navbar container */
 .navbar {
+  margin: 0;                     /* Remove default margin */
+  padding: 0 20px;               /* Optional side padding */
+  background-color: #004080;     /* Ensure background fills full width */
+  color: white;
   display: flex;
   justify-content: space-between; /* Separate brand from links */
   align-items: center;
@@ -13,6 +17,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
 }
+  
 
 /* Brand or app title */
 .navbar-brand {
@@ -56,7 +61,7 @@
 .navbar-toggle span {
   background: white;
   height: 3px;
-  width: 25px;
+  width: 30px;
   border-radius: 2px;
 }
 
@@ -96,7 +101,7 @@
 
 /* Logo image next to brand name */
 .navbar-logo {
-  height: 70px;
+  height: 60px;
   width: auto;
   margin-right: 8px;
   vertical-align: middle;

@@ -1,3 +1,30 @@
+/* ========== Hero Section ========== */
+.landing-hero {
+  padding: 40px 20px; /* Top/bottom and side padding */
+  text-align: left;   /* Align text to left (optional for visual style) */
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;     /* Center the hero content */
+}
+
+.landing-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.brand-text {
+  color: var(--primary-color); /* highlight brand part if defined */
+}
+
+.landing-subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
 /* ========== Feature Card Section ========== */
 .landing-features-section {
   display: flex;
