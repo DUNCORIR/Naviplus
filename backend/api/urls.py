@@ -14,6 +14,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import BuildingViewSet, PLDViewSet, UserProfileViewSet, signup
 from rest_framework.authtoken import views as auth_views
+from .views import navigate
 
 # Initialize and register routes for viewsets
 router = DefaultRouter()
@@ -26,4 +27,5 @@ urlpatterns = [
     path('', include(router.urls)),                            # Auto-generated routes from ViewSets
     path('signup/', signup, name='signup'),                    # Custom signup route
     path('login/', auth_views.obtain_auth_token, name='login') # DRF built-in token auth route
+    path('navigate/', navigate, name='navigate'),              # Custom navigation endpoint
 ]

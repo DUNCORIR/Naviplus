@@ -18,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
+from django.shortcuts import get_object_or_404
 
 # ================== ViewSets ==================
 
@@ -89,3 +90,39 @@ def signup(request):
     token, _ = Token.objects.get_or_create(user=user)
 
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def navigate(request):
+    """
+    Simulates indoor navigation between two PLDs (entrance points) in a building.
+    Expects query params: ?building=1&start=Entrance A&end=Lift B
+    Returns step-by-step instructions (mocked).
+    """
+    building_id = request.query_params.get('building')
+    start = request.query_params.get('start')
+    end = request.query_params.get('end')
+
+    if not all([building_id, start, end]):
+        return Response({'error': 'Missing parameters: building, start, end required.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    building = get_object_or_404(Building, pk=building_id)
+    plds = building.plds.all()
+
+    start_pld = plds.filter(entrance_name__iexact=start).first()
+    end_pld = plds.filter(entrance_name__iexact=end).first()
+
+    if not start_pld or not end_pld:
+        return Response({'error': 'Start or end point not found in building.'},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    # ✨ Mock navigation logic — simulate a real path
+    steps = [
+        f"Start at {start_pld.entrance_name}.",
+        "Proceed straight for 10 meters.",
+        "Turn right at the hallway junction.",
+        f"Arrive at {end_pld.entrance_name}."
+    ]
+
+    return Response({'steps': steps}, status=status.HTTP_200_OK)
