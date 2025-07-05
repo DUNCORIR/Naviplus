@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'screens/scan_building_screen.dart'; // <-- New import for ScanBuildingScreen
 import 'dart:io'; // For platform checks
+import 'screens/navigation_assistance_screen.dart';
 
 /// This screen allows users to give voice commands,
 /// which are transcribed and optionally used for navigation.
