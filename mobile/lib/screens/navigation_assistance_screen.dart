@@ -1,14 +1,16 @@
-// ================================================
-// Updated NavigationAssistanceScreen
-// Now includes voice command parsing like:
-// "Start from Entrance A to Lift 2"
-// ================================================
+// ===============================================================
+// File: navigation_assistance_screen.dart
+// Description: Enables accessible indoor navigation with voice
+//              parsing of phrases like:
+//              "Start from Entrance A to Lift 1"
+//              Includes voice return to Welcome screen
+// ===============================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../services/api_service.dart';
-import 'dart:io'; // For platform check
+import 'dart:io';
 
 class NavigationAssistanceScreen extends StatefulWidget {
   const NavigationAssistanceScreen({super.key});
@@ -47,7 +49,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     super.dispose();
   }
 
-  /// Fetches building list
+  /// Fetch list of buildings from backend
   Future<void> _loadBuildings() async {
     try {
       final data = await ApiService.fetchBuildings();
@@ -57,7 +59,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     }
   }
 
-  /// Fetches PLDs for selected building
+  /// Fetch list of PLDs (start/end points) for a selected building
   Future<void> _loadPLDs(String buildingId) async {
     try {
       final plds = await ApiService.fetchPLDs(buildingId);
@@ -71,7 +73,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     }
   }
 
-  /// Trigger backend navigation route
+  /// Fetch route steps from API and speak them aloud
   Future<void> _getNavigationSteps() async {
     if (_selectedBuilding == null || _selectedStart == null || _selectedEnd == null) {
       _speakAndSetError('Please select building, start, and end.');
@@ -91,6 +93,8 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
         end: _selectedEnd!,
       );
       setState(() => _steps = steps);
+
+      // Speak each direction
       for (final step in steps) {
         await _tts.speak(step);
         await Future.delayed(const Duration(seconds: 2));
@@ -102,13 +106,13 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     }
   }
 
-  /// Utility: speaks and sets error message
+  /// Speak and show an error message
   void _speakAndSetError(String msg) async {
     await _tts.speak(msg);
     setState(() => _errorMessage = msg);
   }
 
-  /// Starts speech recognition and parses result
+  /// Begin listening for voice command
   Future<void> _startVoiceCommand() async {
     if (!(Platform.isAndroid || Platform.isIOS)) {
       _speakAndSetError('Voice input only works on Android or iOS.');
@@ -130,16 +134,30 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     }
   }
 
-  /// Stops voice input
+  /// Stop voice listening
   void _stopVoiceCommand() {
     _speech.stop();
     setState(() => _isListening = false);
   }
 
-  /// Parses natural language and sets start/end
+  /// Parse user speech like:
+  /// "Start from Entrance A to Lift 1"
+  /// "Go back" → Navigates to welcome screen
   void _handleVoiceCommand(String input) {
+    final command = input.toLowerCase();
+
+    // Handle "go back" command
+    if (command.contains("go back") ||
+        command.contains("return to home") ||
+        command.contains("back to welcome")) {
+      _tts.speak("Returning to Welcome screen");
+      Navigator.popUntil(context, (route) => route.isFirst);
+      return;
+    }
+
+    // Handle "start from X to Y"
     final regex = RegExp(r'start from (.+?) to (.+)');
-    final match = regex.firstMatch(input);
+    final match = regex.firstMatch(command);
 
     if (match != null && _plds.isNotEmpty) {
       final start = match.group(1)?.trim();
@@ -164,14 +182,12 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
       } else {
         _speakAndSetError('Could not recognize one of the locations.');
       }
-    } else if (input.contains("back") || input.contains("go back")) {
-      Navigator.pop(context);
     } else {
-      _speakAndSetError('Please say: start from X to Y.');
+      _speakAndSetError('Please say: start from X to Y or say go back.');
     }
   }
 
-  /// Builds a dropdown field
+  /// Creates a styled dropdown form field
   Widget _buildDropdown<T>({
     required String label,
     required T? selectedValue,
@@ -198,7 +214,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     );
   }
 
-  /// UI
+  /// Main UI build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -259,7 +275,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
               ElevatedButton.icon(
                 icon: const Icon(Icons.volume_up),
                 label: const Text("Repeat Instructions"),
-                onPressed: _steps.isEmpty ? null : _getNavigationSteps,
+                onPressed: _getNavigationSteps,
               ),
               const SizedBox(height: 8),
               Expanded(
