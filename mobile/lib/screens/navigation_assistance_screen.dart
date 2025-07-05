@@ -1,8 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+// ======================================
+// File: lib/screens/navigation_assistance_screen.dart
+// Description: Allows user to request navigation steps between PLDs
+// ======================================
 
-/// Screen that provides audio + text-based navigation assistance
-/// to help visually impaired users move within buildings.
+import 'package:flutter/material.dart';
+import '../services/api_service.dart';
+
+/// This screen lets users pick building/start/end points and fetch indoor directions.
+/// Results are displayed in an accessible format.
 class NavigationAssistanceScreen extends StatefulWidget {
   const NavigationAssistanceScreen({super.key});
 
@@ -11,49 +16,48 @@ class NavigationAssistanceScreen extends StatefulWidget {
 }
 
 class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen> {
-  final FlutterTts _flutterTts = FlutterTts();
+  final TextEditingController _buildingController = TextEditingController();
+  final TextEditingController _startController = TextEditingController();
+  final TextEditingController _endController = TextEditingController();
 
-  // Simulated navigation instructions (these can come from backend later)
-  final List<String> _instructions = [
-    "You are currently at the building entrance.",
-    "Walk straight for 10 meters.",
-    "Turn right towards the elevator.",
-    "You have reached the elevator. Press the button for floor 2.",
-  ];
+  bool _isLoading = false;
+  String? _errorMessage;
+  List<String> _steps = [];
 
-  int _currentStep = 0; // Track current instruction
+  /// Fetches navigation steps by calling the backend API
+  Future<void> _getNavigationSteps() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _steps = [];
+    });
 
-  @override
-  void initState() {
-    super.initState();
-    _speakInstruction(); // Speak first instruction on load
-  }
-
-  /// Speaks the current instruction using TTS
-  Future<void> _speakInstruction() async {
-    await _flutterTts.speak(_instructions[_currentStep]);
-  }
-
-  /// Move to next instruction (if available)
-  void _nextStep() {
-    if (_currentStep < _instructions.length - 1) {
-      setState(() {
-        _currentStep++;
-      });
-      _speakInstruction();
-    } else {
-      _flutterTts.speak("You have completed the navigation.");
+    try {
+      final steps = await ApiService.fetchNavigationSteps(
+        buildingId: _buildingController.text,
+        start: _startController.text,
+        end: _endController.text,
+      );
+      setState(() => _steps = steps);
+    } catch (e) {
+      setState(() => _errorMessage = 'Failed to fetch directions.');
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
-  /// Move back to previous instruction
-  void _prevStep() {
-    if (_currentStep > 0) {
-      setState(() {
-        _currentStep--;
-      });
-      _speakInstruction();
-    }
+  /// Builds a text field for inputting parameters
+  Widget _buildInputField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
   }
 
   @override
@@ -61,32 +65,44 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     return Scaffold(
       appBar: AppBar(title: const Text('Navigation Assistance')),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Display instruction visually for those who can read it
-            Text(
-              _instructions[_currentStep],
-              style: const TextStyle(fontSize: 24),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
+            // User inputs for navigation
+            _buildInputField("Building ID", _buildingController),
+            _buildInputField("Start Point", _startController),
+            _buildInputField("End Point", _endController),
 
-            // Buttons to move forward/backward
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: _prevStep,
-                  child: const Text('Previous'),
-                ),
-                ElevatedButton(
-                  onPressed: _nextStep,
-                  child: const Text('Next'),
-                ),
-              ],
-            )
+            const SizedBox(height: 12),
+
+            ElevatedButton(
+              onPressed: _isLoading ? null : _getNavigationSteps,
+              child: const Text("Get Directions"),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Show loading or error
+            if (_isLoading) const CircularProgressIndicator(),
+            if (_errorMessage != null) ...[
+              Text(
+                _errorMessage!,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ],
+
+            // Show navigation results
+            if (_steps.isNotEmpty) ...[
+              const Text(
+                "Directions:",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ..._steps.map((step) => ListTile(
+                    leading: const Icon(Icons.navigation),
+                    title: Text(step),
+                  )),
+            ]
           ],
         ),
       ),
