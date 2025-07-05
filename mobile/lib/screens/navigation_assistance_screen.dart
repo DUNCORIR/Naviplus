@@ -1,9 +1,10 @@
 // ===============================================================
 // File: navigation_assistance_screen.dart
-// Description: Enables accessible indoor navigation with voice
-//              parsing of phrases like:
-//              "Start from Entrance A to Lift 1"
-//              Includes voice return to Welcome screen
+// Description: Accessible screen for visually impaired users to
+//              select or speak indoor navigation commands.
+//              ✅ Step 1: Voice command parsing
+//              ✅ Step 2: Voice return to Welcome
+//              ✅ Step 3: Save & reuse recent building/start/end
 // ===============================================================
 
 import 'package:flutter/material.dart';
@@ -11,15 +12,18 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../services/api_service.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavigationAssistanceScreen extends StatefulWidget {
   const NavigationAssistanceScreen({super.key});
 
   @override
-  State<NavigationAssistanceScreen> createState() => _NavigationAssistanceScreenState();
+  State<NavigationAssistanceScreen> createState() =>
+      _NavigationAssistanceScreenState();
 }
 
-class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen> {
+class _NavigationAssistanceScreenState
+    extends State<NavigationAssistanceScreen> {
   final FlutterTts _tts = FlutterTts();
   late stt.SpeechToText _speech;
 
@@ -39,7 +43,8 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _loadBuildings();
+    _loadSavedSelections(); // Load last-used building/start/end
+    _loadBuildings(); // Then load building list
   }
 
   @override
@@ -49,31 +54,62 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     super.dispose();
   }
 
+  /// Load saved dropdown values from device
+  Future<void> _loadSavedSelections() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedBuilding = prefs.getString('last_building');
+      _selectedStart = prefs.getString('last_start');
+      _selectedEnd = prefs.getString('last_end');
+    });
+  }
+
+  /// Save current dropdown values for next session
+  Future<void> _saveSelections() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_selectedBuilding != null) {
+      await prefs.setString('last_building', _selectedBuilding!);
+    }
+    if (_selectedStart != null) {
+      await prefs.setString('last_start', _selectedStart!);
+    }
+    if (_selectedEnd != null) {
+      await prefs.setString('last_end', _selectedEnd!);
+    }
+  }
+
   /// Fetch list of buildings from backend
   Future<void> _loadBuildings() async {
     try {
       final data = await ApiService.fetchBuildings();
       setState(() => _buildings = data);
+
+      // Auto-load PLDs for preselected building
+      if (_selectedBuilding != null) {
+        _loadPLDs(_selectedBuilding!);
+      }
     } catch (_) {
       _speakAndSetError('Could not load buildings.');
     }
   }
 
-  /// Fetch list of PLDs (start/end points) for a selected building
+  /// Load physical location descriptors (PLDs)
   Future<void> _loadPLDs(String buildingId) async {
     try {
       final plds = await ApiService.fetchPLDs(buildingId);
-      setState(() {
-        _plds = plds;
-        _selectedStart = null;
-        _selectedEnd = null;
-      });
+      setState(() => _plds = plds);
     } catch (_) {
       _speakAndSetError('Failed to load locations for the selected building.');
     }
   }
 
-  /// Fetch route steps from API and speak them aloud
+  /// Speak error + show on screen
+  void _speakAndSetError(String msg) async {
+    await _tts.speak(msg);
+    setState(() => _errorMessage = msg);
+  }
+
+  /// Call API to get navigation steps and speak them aloud
   Future<void> _getNavigationSteps() async {
     if (_selectedBuilding == null || _selectedStart == null || _selectedEnd == null) {
       _speakAndSetError('Please select building, start, and end.');
@@ -93,8 +129,8 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
         end: _selectedEnd!,
       );
       setState(() => _steps = steps);
+      _saveSelections(); // 💾 Save recent values
 
-      // Speak each direction
       for (final step in steps) {
         await _tts.speak(step);
         await Future.delayed(const Duration(seconds: 2));
@@ -106,13 +142,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     }
   }
 
-  /// Speak and show an error message
-  void _speakAndSetError(String msg) async {
-    await _tts.speak(msg);
-    setState(() => _errorMessage = msg);
-  }
-
-  /// Begin listening for voice command
+  /// Start voice command mode
   Future<void> _startVoiceCommand() async {
     if (!(Platform.isAndroid || Platform.isIOS)) {
       _speakAndSetError('Voice input only works on Android or iOS.');
@@ -128,25 +158,20 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
       setState(() => _isListening = true);
       _speech.listen(onResult: (result) {
         final command = result.recognizedWords.toLowerCase();
-        print("Heard: $command");
         _handleVoiceCommand(command);
       });
     }
   }
 
-  /// Stop voice listening
   void _stopVoiceCommand() {
     _speech.stop();
     setState(() => _isListening = false);
   }
 
-  /// Parse user speech like:
-  /// "Start from Entrance A to Lift 1"
-  /// "Go back" → Navigates to welcome screen
+  /// Parse phrases like "start from X to Y", "go back"
   void _handleVoiceCommand(String input) {
     final command = input.toLowerCase();
 
-    // Handle "go back" command
     if (command.contains("go back") ||
         command.contains("return to home") ||
         command.contains("back to welcome")) {
@@ -155,7 +180,6 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
       return;
     }
 
-    // Handle "start from X to Y"
     final regex = RegExp(r'start from (.+?) to (.+)');
     final match = regex.firstMatch(command);
 
@@ -187,7 +211,6 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     }
   }
 
-  /// Creates a styled dropdown form field
   Widget _buildDropdown<T>({
     required String label,
     required T? selectedValue,
@@ -214,7 +237,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
     );
   }
 
-  /// Main UI build method
+  /// UI layout
   @override
   Widget build(BuildContext context) {
     return Scaffold(
