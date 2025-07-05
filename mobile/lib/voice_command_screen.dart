@@ -1,7 +1,9 @@
+import 'dart:io'; // For platform checks
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'screens/scan_building_screen.dart'; // <-- New import for ScanBuildingScreen
-import 'dart:io'; // For platform checks
+
+// Custom screens
+import 'screens/scan_building_screen.dart';
 import 'screens/navigation_assistance_screen.dart';
 
 /// This screen allows users to give voice commands,
@@ -25,7 +27,7 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
   }
 
   /// Starts listening for voice input and updates [_spokenText] with results.
-  /// Navigates to ScanBuildingScreen if user mentions "scan".
+  /// Navigates to corresponding screens based on keywords.
   void _startListening() async {
     // Avoid running unsupported plugin on Linux/WSL
     if (!(Platform.isAndroid || Platform.isIOS)) {
@@ -43,6 +45,7 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
 
     if (available) {
       setState(() => _isListening = true);
+
       _speech.listen(
         onResult: (result) {
           // Capture and show the spoken words
@@ -50,11 +53,21 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
             _spokenText = result.recognizedWords;
           });
 
-          // Example: if user says "scan", navigate to ScanBuildingScreen
-          if (result.recognizedWords.toLowerCase().contains('scan')) {
+          final command = result.recognizedWords.toLowerCase();
+
+          // Navigate to ScanBuildingScreen if "scan" is mentioned
+          if (command.contains('scan')) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ScanBuildingScreen()),
+            );
+          }
+
+          // Navigate to NavigationAssistanceScreen if "navigate" is mentioned
+          else if (command.contains('navigate')) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NavigationAssistanceScreen()),
             );
           }
         },
