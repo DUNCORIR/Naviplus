@@ -1,10 +1,10 @@
 // ===============================================================
 // File: navigation_assistance_screen.dart
-// Description: Accessible screen for visually impaired users to
-//              select or speak indoor navigation commands.
-//              ✅ Step 1: Voice command parsing
-//              ✅ Step 2: Voice return to Welcome
-//              ✅ Step 3: Save & reuse recent building/start/end
+// Description: Accessible indoor navigation screen for visually impaired users
+// Steps:
+// 1. Voice command parsing
+// 2. Voice-based return to Welcome
+// 3. Save & reuse recent location inputs
 // ===============================================================
 
 import 'package:flutter/material.dart';
@@ -18,43 +18,40 @@ class NavigationAssistanceScreen extends StatefulWidget {
   const NavigationAssistanceScreen({super.key});
 
   @override
-  State<NavigationAssistanceScreen> createState() =>
-      _NavigationAssistanceScreenState();
+  State<NavigationAssistanceScreen> createState() => _NavigationAssistanceScreenState();
 }
 
-class _NavigationAssistanceScreenState
-    extends State<NavigationAssistanceScreen> {
-  final FlutterTts _tts = FlutterTts();
-  late stt.SpeechToText _speech;
+class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen> {
+  final FlutterTts _tts = FlutterTts();           // Text-to-Speech engine
+  late stt.SpeechToText _speech;                 // Speech-to-text engine
 
-  String? _selectedBuilding;
-  String? _selectedStart;
-  String? _selectedEnd;
+  String? _selectedBuilding; // Selected building ID (as string)
+  String? _selectedStart;    // Selected start PLD
+  String? _selectedEnd;      // Selected end PLD
 
-  List<Map<String, dynamic>> _buildings = [];
-  List<String> _plds = [];
-  List<String> _steps = [];
+  List<Map<String, dynamic>> _buildings = [];    // Raw building objects
+  List<String> _plds = [];                       // PLD names (entrance, lift, etc)
+  List<String> _steps = [];                      // Directions to read out
 
-  bool _isLoading = false;
-  bool _isListening = false;
-  String? _errorMessage;
+  bool _isLoading = false;       // Whether steps are being fetched
+  bool _isListening = false;     // Voice listening active?
+  String? _errorMessage;         // Error display + voice message
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _loadSavedSelections(); // Load last-used building/start/end
-    _loadBuildings(); // Then load building list
+    _loadSavedSelections();
+    _loadBuildings();
   }
 
   @override
   void dispose() {
-    _tts.stop();
-    _tts.dispose();
+    _tts.stop(); // Only stop, do NOT call _tts.dispose()
     super.dispose();
   }
 
-  /// Load saved dropdown values from device
+  /// Load last used selections (building/start/end) from local storage
   Future<void> _loadSavedSelections() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -64,27 +61,21 @@ class _NavigationAssistanceScreenState
     });
   }
 
-  /// Save current dropdown values for next session
+  /// Save current selections for next session
   Future<void> _saveSelections() async {
     final prefs = await SharedPreferences.getInstance();
-    if (_selectedBuilding != null) {
-      await prefs.setString('last_building', _selectedBuilding!);
-    }
-    if (_selectedStart != null) {
-      await prefs.setString('last_start', _selectedStart!);
-    }
-    if (_selectedEnd != null) {
-      await prefs.setString('last_end', _selectedEnd!);
-    }
+    if (_selectedBuilding != null) await prefs.setString('last_building', _selectedBuilding!);
+    if (_selectedStart != null) await prefs.setString('last_start', _selectedStart!);
+    if (_selectedEnd != null) await prefs.setString('last_end', _selectedEnd!);
   }
 
-  /// Fetch list of buildings from backend
+  /// Load buildings from backend
   Future<void> _loadBuildings() async {
     try {
       final data = await ApiService.fetchBuildings();
-      setState(() => _buildings = data);
+      setState(() => _buildings = data.cast<Map<String, dynamic>>());
 
-      // Auto-load PLDs for preselected building
+      // Auto-load PLDs if a building was previously selected
       if (_selectedBuilding != null) {
         _loadPLDs(_selectedBuilding!);
       }
@@ -93,23 +84,24 @@ class _NavigationAssistanceScreenState
     }
   }
 
-  /// Load physical location descriptors (PLDs)
+  /// Load PLDs for selected building
   Future<void> _loadPLDs(String buildingId) async {
     try {
-      final plds = await ApiService.fetchPLDs(buildingId);
-      setState(() => _plds = plds);
+      final plds = await ApiService.fetchPLDs(int.parse(buildingId));
+      final pldNames = plds.map((pld) => pld['name'].toString()).toList();
+      setState(() => _plds = pldNames);
     } catch (_) {
       _speakAndSetError('Failed to load locations for the selected building.');
     }
   }
 
-  /// Speak error + show on screen
+  /// Display error visually and speak it aloud
   void _speakAndSetError(String msg) async {
     await _tts.speak(msg);
     setState(() => _errorMessage = msg);
   }
 
-  /// Call API to get navigation steps and speak them aloud
+  /// Request directions from backend and speak them aloud
   Future<void> _getNavigationSteps() async {
     if (_selectedBuilding == null || _selectedStart == null || _selectedEnd == null) {
       _speakAndSetError('Please select building, start, and end.');
@@ -124,12 +116,13 @@ class _NavigationAssistanceScreenState
 
     try {
       final steps = await ApiService.fetchNavigationSteps(
-        buildingId: _selectedBuilding!,
+        buildingId: int.parse(_selectedBuilding!), // Convert from String to int
         start: _selectedStart!,
         end: _selectedEnd!,
       );
+
       setState(() => _steps = steps);
-      _saveSelections(); // 💾 Save recent values
+      _saveSelections(); // Save inputs
 
       for (final step in steps) {
         await _tts.speak(step);
@@ -142,7 +135,7 @@ class _NavigationAssistanceScreenState
     }
   }
 
-  /// Start voice command mode
+  /// Start listening for voice input
   Future<void> _startVoiceCommand() async {
     if (!(Platform.isAndroid || Platform.isIOS)) {
       _speakAndSetError('Voice input only works on Android or iOS.');
@@ -168,7 +161,7 @@ class _NavigationAssistanceScreenState
     setState(() => _isListening = false);
   }
 
-  /// Parse phrases like "start from X to Y", "go back"
+  /// Handle voice inputs like "start from entrance to lift"
   void _handleVoiceCommand(String input) {
     final command = input.toLowerCase();
 
@@ -211,6 +204,7 @@ class _NavigationAssistanceScreenState
     }
   }
 
+  /// Dropdown builder for reuse
   Widget _buildDropdown<T>({
     required String label,
     required T? selectedValue,
@@ -237,7 +231,7 @@ class _NavigationAssistanceScreenState
     );
   }
 
-  /// UI layout
+  /// Main UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(

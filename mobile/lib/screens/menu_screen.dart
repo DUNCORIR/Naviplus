@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+// ===============================
+// File: lib/screens/menu_screen.dart
+// Description: Main menu screen with navigation to different features
+// ===============================
 
-/// This screen acts as the main menu of the Naviplus app.
-/// It provides three accessible options for the user:
-/// 1. Voice Command
-/// 2. Scan Building
-/// 3. Navigation Assistance
-///
-/// Voice instructions are spoken aloud using TTS (flutter_tts).
+import 'package:flutter/material.dart';
+import 'package:mobile/screens/scan_building_screen.dart';
+import 'package:mobile/screens/navigation_assistance_screen.dart';
+
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
@@ -16,30 +15,48 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  final FlutterTts _tts = FlutterTts(); // Text-to-Speech instance
-
-  @override
-  void initState() {
-    super.initState();
-    _speakIntro(); // Speak menu options aloud on screen load
-  }
-
-  /// Speaks the intro message when the menu screen opens
-  Future<void> _speakIntro() async {
-    await _tts.speak(
-      "Welcome to Naviplus. Please choose an option: "
-      "Voice Command, Scan Building, or Navigation Assistance.",
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Main Menu")),
+      appBar: AppBar(
+        title: const Text('Naviplus Menu'),
+      ),
       body: ListView(
-        padding: const EdgeInsets.all(24.0),
         children: [
-          // Option 1: Voice Command
+          // Reusable list items for different features
           _buildMenuItem(
-            title: "Voice Command",
-            onTap: () => Navigator.pushNamed(context, '/voice
+            'Scan Building',
+            Icons.camera_alt,
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ScanBuildingScreen()),
+            ),
+          ),
+          _buildMenuItem(
+            'Navigation Assistance',
+            Icons.navigation,
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NavigationAssistanceScreen()),
+            ),
+          ),
+          _buildMenuItem(
+            'Voice Commands',
+            Icons.mic,
+            () => Navigator.pushNamed(context, '/voice'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Helper method to build menu entries with icon, label, and navigation
+  Widget _buildMenuItem(String title, IconData icon, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: const Icon(Icons.arrow_forward_ios),
+      onTap: onTap,
+    );
+  }
+}
