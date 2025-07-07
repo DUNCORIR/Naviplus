@@ -1,6 +1,6 @@
 // =============================
 // File: lib/screens/navigation_assistance_screen.dart
-// Description: UI for selecting start/end points and getting directions
+// Description: Allows users to request navigation between points in a building
 // =============================
 
 import 'package:flutter/material.dart';
@@ -8,8 +8,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 
-/// Screen that provides step-by-step directions inside a building.
-/// Visually impaired users can use dropdowns or voice commands.
 class NavigationAssistanceScreen extends StatefulWidget {
   const NavigationAssistanceScreen({super.key});
 
@@ -18,130 +16,90 @@ class NavigationAssistanceScreen extends StatefulWidget {
 }
 
 class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen> {
-  final FlutterTts _tts = FlutterTts();
+  final FlutterTts _tts = FlutterTts(); // Text-to-speech instance
 
-  // Selected values for dropdowns
-  int? _selectedBuilding;
-  String? _startLocation;
-  String? _endLocation;
+  List<Map<String, dynamic>> _buildings = []; // List of building data
+  List<Map<String, dynamic>> _plds = [];       // List of PLDs (Physical Location Descriptors)
 
-  // Data sources
-  List<Map<String, dynamic>> _buildings = [];
-  List<Map<String, dynamic>> _plds = [];
-  List<String> _steps = [];
+  int? _selectedBuilding; // Currently selected building ID
+  String? _selectedStart; // Selected start location name
+  String? _selectedEnd;   // Selected destination name
 
-  bool _isLoading = false;
-  String? _error;
+  String _instructions = ''; // Navigation result text
+  bool _isLoading = false;   // Whether API call is in progress
 
   @override
   void initState() {
     super.initState();
-    _fetchBuildings();
-    _loadLastRoute();
+    _fetchBuildings(); // Load buildings on init
   }
 
-  /// Text-to-speech helper
-  Future<void> _speak(String message) async {
-    await _tts.speak(message);
-  }
-
-  /// Load saved recent route from shared preferences
-  Future<void> _loadLastRoute() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _startLocation = prefs.getString('last_start');
-      _endLocation = prefs.getString('last_end');
-    });
-  }
-
-  /// Save recent route for reuse
-  Future<void> _saveRoute(String start, String end) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('last_start', start);
-    await prefs.setString('last_end', end);
-  }
-
-  /// Fetch available buildings from backend
+  /// Loads buildings from backend and caches last used ones
   Future<void> _fetchBuildings() async {
     try {
       final data = await ApiService.fetchBuildings();
-      setState(() => _buildings = data);
+      setState(() => _buildings = List<Map<String, dynamic>>.from(data));
+
+      // Try loading previous selections from local storage
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _selectedBuilding = prefs.getInt('last_building');
+        _selectedStart = prefs.getString('last_start');
+        _selectedEnd = prefs.getString('last_end');
+      });
+
+      if (_selectedBuilding != null) {
+        await _fetchPLDs(_selectedBuilding!);
+      }
     } catch (e) {
-      setState(() => _error = 'Failed to load buildings');
-      _speak('Failed to load buildings');
+      _speakAndSetError('Failed to load buildings.');
     }
   }
 
-  /// Fetch PLDs for the selected building
+  /// Loads PLDs for selected building
   Future<void> _fetchPLDs(int buildingId) async {
     try {
       final plds = await ApiService.fetchPLDs(buildingId);
-      setState(() => _plds = plds);
+      setState(() => _plds = List<Map<String, dynamic>>.from(plds));
     } catch (e) {
-      setState(() => _error = 'Failed to load locations');
-      _speak('Failed to load locations');
+      _speakAndSetError('Failed to load locations for this building.');
     }
   }
 
-  /// Handle changes in building dropdown
-  void _onBuildingSelected(int? buildingId) {
-    setState(() {
-      _selectedBuilding = buildingId;
-      _startLocation = null;
-      _endLocation = null;
-      _plds = [];
-    });
-
-    if (buildingId != null) {
-      _fetchPLDs(buildingId);
-    }
-  }
-
-  /// Request directions from backend
-  Future<void> _getDirections() async {
-    if (_selectedBuilding == null || _startLocation == null || _endLocation == null) {
-      _speak('Please select building, start and end');
+  /// Fetches directions between selected locations
+  Future<void> _getNavigationSteps() async {
+    if (_selectedBuilding == null || _selectedStart == null || _selectedEnd == null) {
+      _speakAndSetError('Please select building, start, and destination.');
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _error = null;
-      _steps = [];
-    });
-
+    setState(() => _isLoading = true);
     try {
       final steps = await ApiService.fetchNavigationSteps(
         buildingId: _selectedBuilding!,
-        start: _startLocation!,
-        end: _endLocation!,
+        start: _selectedStart!,
+        end: _selectedEnd!,
       );
 
-      setState(() => _steps = steps);
-      _speak("Here are your directions: ${steps.join(", ")}");
-      _saveRoute(_startLocation!, _endLocation!);
+      final text = steps.join(". ");
+      setState(() => _instructions = text);
+      await _tts.speak(text);
+
+      // Save selection to cache
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setInt('last_building', _selectedBuilding!);
+      prefs.setString('last_start', _selectedStart!);
+      prefs.setString('last_end', _selectedEnd!);
     } catch (e) {
-      setState(() => _error = 'Failed to get directions');
-      _speak('Failed to get directions');
-    } finally {
-      setState(() => _isLoading = false);
+      _speakAndSetError('Failed to fetch directions.');
     }
+    setState(() => _isLoading = false);
   }
 
-  /// Widget builder for dropdowns
-  DropdownButton<String> _buildDropdown({
-    required String hint,
-    required String? value,
-    required List<String> options,
-    required void Function(String?) onChanged,
-  }) {
-    return DropdownButton<String>(
-      hint: Text(hint),
-      value: value,
-      items: options.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-      onChanged: onChanged,
-      isExpanded: true,
-    );
+  /// Helper to announce error via TTS and UI
+  void _speakAndSetError(String message) {
+    _tts.speak(message);
+    setState(() => _instructions = message);
   }
 
   @override
@@ -155,66 +113,78 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Building Dropdown
-                  DropdownButton<int>(
-                    hint: const Text('Select Building'),
-                    value: _selectedBuilding,
-                    isExpanded: true,
-                    items: _buildings.map((b) {
-                      return DropdownMenuItem(
-                        value: b['id'],
-                        child: Text(b['name'] ?? 'Building ${b['id']}'),
-                      );
-                    }).toList(),
-                    onChanged: _onBuildingSelected,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Start Location Dropdown
-                  if (_plds.isNotEmpty)
-                    _buildDropdown(
-                      hint: 'Start Location',
-                      value: _startLocation,
-                      options: _plds.map((p) => p['name'] as String).toList(),
-                      onChanged: (val) => setState(() => _startLocation = val),
-                    ),
-
-                  const SizedBox(height: 10),
-
-                  // End Location Dropdown
-                  if (_plds.isNotEmpty)
-                    _buildDropdown(
-                      hint: 'End Location',
-                      value: _endLocation,
-                      options: _plds.map((p) => p['name'] as String).toList(),
-                      onChanged: (val) => setState(() => _endLocation = val),
-                    ),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton(
-                    onPressed: _getDirections,
-                    child: const Text('Get Directions'),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  if (_steps.isNotEmpty) ...[
-                    const Text('Directions:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    for (final step in _steps) Text('- $step'),
-                  ],
-
-                  if (_error != null)
-                    Text(_error!, style: const TextStyle(color: Colors.red)),
-                ],
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('Select Building:'),
+              DropdownButton<int>(
+                value: _selectedBuilding,
+                hint: const Text('Choose a building'),
+                isExpanded: true,
+                items: _buildings.map<DropdownMenuItem<int>>((b) {
+                  return DropdownMenuItem<int>(
+                    value: b['id'] as int,
+                    child: Text(b['name']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedBuilding = value;
+                    _selectedStart = null;
+                    _selectedEnd = null;
+                  });
+                  _fetchPLDs(value!);
+                },
               ),
+
+              const SizedBox(height: 20),
+              const Text('Start Location:'),
+              DropdownButton<String>(
+                value: _selectedStart,
+                hint: const Text('Choose start'),
+                isExpanded: true,
+                items: _plds.map<DropdownMenuItem<String>>((p) {
+                  return DropdownMenuItem<String>(
+                    value: p['name'] as String,
+                    child: Text(p['name']),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() => _selectedStart = value),
+              ),
+
+              const SizedBox(height: 20),
+              const Text('Destination:'),
+              DropdownButton<String>(
+                value: _selectedEnd,
+                hint: const Text('Choose destination'),
+                isExpanded: true,
+                items: _plds.map<DropdownMenuItem<String>>((p) {
+                  return DropdownMenuItem<String>(
+                    value: p['name'] as String,
+                    child: Text(p['name']),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() => _selectedEnd = value),
+              ),
+
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _getNavigationSteps,
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Get Directions'),
+              ),
+
+              const SizedBox(height: 30),
+              Text(
+                _instructions,
+                style: const TextStyle(fontSize: 16),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
