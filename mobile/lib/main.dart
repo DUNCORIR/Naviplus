@@ -9,6 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 // Screens used throughout the app
 import 'voice_command_screen.dart';
 import 'screens/menu_screen.dart';
+import 'login_screen.dart';
 import 'screens/scan_building_screen.dart';
 import 'screens/navigation_assistance_screen.dart';
 
@@ -33,7 +34,7 @@ class NaviplusApp extends StatelessWidget {
       ),
 
       // Set the first screen to the WelcomeScreen
-      home: const WelcomeScreen(),
+      home: const LoginScreen(),
 
       // Define all named routes used in the app
       routes: {
