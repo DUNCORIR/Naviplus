@@ -9,7 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 // Screens used throughout the app
 import 'voice_command_screen.dart';
 import 'screens/menu_screen.dart';
-import 'login_screen.dart';
+import 'screens/login_screen.dart';
 import 'screens/scan_building_screen.dart';
 import 'screens/navigation_assistance_screen.dart';
 
