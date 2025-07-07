@@ -26,6 +26,6 @@ router.register(r'user-profiles', UserProfileViewSet, basename='userprofile')
 urlpatterns = [
     path('', include(router.urls)),                            # Auto-generated routes from ViewSets
     path('signup/', signup, name='signup'),                    # Custom signup route
-    path('login/', auth_views.obtain_auth_token, name='login') # DRF built-in token auth route
+    path('login/', auth_views.obtain_auth_token, name='login'), # DRF built-in token auth route
     path('navigate/', navigate, name='navigate'),              # Custom navigation endpoint
 ]
