@@ -12,6 +12,7 @@ import 'screens/menu_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/scan_building_screen.dart';
 import 'screens/navigation_assistance_screen.dart';
+import 'screens/signup_screen.dart';
 
 void main() {
   runApp(const NaviplusApp());
