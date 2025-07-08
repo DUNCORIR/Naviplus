@@ -42,6 +42,7 @@ class NaviplusApp extends StatelessWidget {
         '/voice': (context) => const VoiceCommandScreen(),
         '/scan': (context) => const ScanBuildingScreen(),
         '/navigate': (context) => const NavigationAssistanceScreen(),
+        '/signup': (context) => const SignupScreen(),
       },
     );
   }
