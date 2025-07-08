@@ -1,15 +1,17 @@
 // ================================================================
-// File: login_screen.dart
+// File: lib/screens/login_screen.dart
 // Description: Lets users log in using username & password.
 //              Auth token is saved to SharedPreferences.
 // ================================================================
 
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'welcome_screen.dart';
 
+/// A screen that handles user login with username and password.
+/// On success, a token is saved and the user is redirected to the welcome screen.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,13 +20,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); // Form validation key
   final TextEditingController _usernameCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();
-  bool _isLoading = false;
-  String? _error;
 
-  /// Handles login via /api/login/
+  bool _isLoading = false; // Whether login is in progress
+  String? _error;          // Optional error message
+
+  /// Handles login process: validates input, sends request, saves token
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -46,9 +49,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', data['token']);
+        await prefs.setString('auth_token', data['token']); // Save token
 
-        // Navigate to WelcomeScreen
+        // Navigate to Welcome screen
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -78,12 +81,15 @@ class _LoginScreenState extends State<LoginScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // Username field
               TextFormField(
                 controller: _usernameCtrl,
                 decoration: const InputDecoration(labelText: "Username"),
                 validator: (v) => v == null || v.isEmpty ? "Enter username" : null,
               ),
               const SizedBox(height: 12),
+
+              // Password field
               TextFormField(
                 controller: _passwordCtrl,
                 obscureText: true,
@@ -91,8 +97,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 validator: (v) => v == null || v.isEmpty ? "Enter password" : null,
               ),
               const SizedBox(height: 16),
-              if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+
+              // Error message (if any)
+              if (_error != null)
+                Text(_error!, style: const TextStyle(color: Colors.red)),
               const SizedBox(height: 8),
+
+              // Login button
               ElevatedButton(
                 onPressed: _isLoading ? null : _login,
                 child: _isLoading
