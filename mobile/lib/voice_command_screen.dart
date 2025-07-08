@@ -1,13 +1,18 @@
-import 'dart:io'; // For platform checks
+// =======================================================================
+// File: lib/screens/voice_command_screen.dart
+// Description: Allows user to speak voice commands that navigate to
+//              other screens (scan or navigation) using speech_to_text.
+// =======================================================================
+
+import 'dart:io'; // Platform check (for speech plugin compatibility)
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-// Custom screens
-import 'screens/scan_building_screen.dart';
-import 'screens/navigation_assistance_screen.dart';
+// Screens navigated via voice command
+import 'scan_building_screen.dart';
+import 'navigation_assistance_screen.dart';
 
-/// This screen allows users to give voice commands,
-/// which are transcribed and optionally used for navigation.
+/// Screen that listens to user voice input and navigates based on keywords.
 class VoiceCommandScreen extends StatefulWidget {
   const VoiceCommandScreen({super.key});
 
@@ -16,28 +21,27 @@ class VoiceCommandScreen extends StatefulWidget {
 }
 
 class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
-  late stt.SpeechToText _speech;
-  bool _isListening = false; // Whether mic is currently active
-  String _spokenText = 'Tap the microphone and start speaking';
+  late stt.SpeechToText _speech;         // Speech recognition plugin instance
+  bool _isListening = false;             // Whether microphone is active
+  String _spokenText =
+      'Tap the microphone and start speaking'; // Transcribed output
 
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText(); // Initialize speech engine
+    _speech = stt.SpeechToText(); // Initialize plugin
   }
 
-  /// Starts listening for voice input and updates [_spokenText] with results.
-  /// Navigates to corresponding screens based on keywords.
+  /// Starts listening and transcribes voice.
+  /// Navigates to different screens based on spoken keywords.
   void _startListening() async {
-    // Avoid running unsupported plugin on Linux/WSL
     if (!(Platform.isAndroid || Platform.isIOS)) {
       setState(() {
-        _spokenText = 'Voice input only works on Android/iOS devices.';
+        _spokenText = 'Voice input only works on Android or iOS.';
       });
       return;
     }
 
-    // Initialize the plugin and check if it's ready
     bool available = await _speech.initialize(
       onStatus: (status) => print('Speech status: $status'),
       onError: (error) => print('Speech error: $error'),
@@ -46,36 +50,33 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
     if (available) {
       setState(() => _isListening = true);
 
-      _speech.listen(
-        onResult: (result) {
-          // Capture and show the spoken words
-          setState(() {
-            _spokenText = result.recognizedWords;
-          });
+      _speech.listen(onResult: (result) {
+        final command = result.recognizedWords.toLowerCase();
 
-          final command = result.recognizedWords.toLowerCase();
+        setState(() {
+          _spokenText = result.recognizedWords;
+        });
 
-          // Navigate to ScanBuildingScreen if "scan" is mentioned
-          if (command.contains('scan')) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ScanBuildingScreen()),
-            );
-          }
+        // Navigate to "Scan Building" if "scan" is said
+        if (command.contains('scan')) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ScanBuildingScreen()),
+          );
+        }
 
-          // Navigate to NavigationAssistanceScreen if "navigate" is mentioned
-          else if (command.contains('navigate')) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const NavigationAssistanceScreen()),
-            );
-          }
-        },
-      );
+        // Navigate to "Navigation Assistance" if "navigate" is said
+        else if (command.contains('navigate')) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NavigationAssistanceScreen()),
+          );
+        }
+      });
     }
   }
 
-  /// Stops the current listening session
+  /// Stops the microphone session
   void _stopListening() {
     _speech.stop();
     setState(() => _isListening = false);
@@ -86,7 +87,7 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Voice Command')),
       body: GestureDetector(
-        // Tapping the screen toggles listening on/off
+        // Tapping toggles between listening/not listening
         onTap: _isListening ? _stopListening : _startListening,
         child: Center(
           child: Padding(
@@ -99,7 +100,6 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
           ),
         ),
       ),
-      // Floating mic button (toggles speech recognition)
       floatingActionButton: FloatingActionButton(
         onPressed: _isListening ? _stopListening : _startListening,
         tooltip: _isListening ? 'Stop' : 'Start Listening',
