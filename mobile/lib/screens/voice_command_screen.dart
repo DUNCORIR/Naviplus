@@ -1,16 +1,13 @@
 // =======================================================================
 // File: lib/screens/voice_command_screen.dart
-// Description: Listens to voice commands, announces screen transitions,
-//              and supports smart parsing (e.g., "start from X to Y").
+// Description: Accepts voice input to navigate to other screens with parsing
 // =======================================================================
 
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:flutter_tts/flutter_tts.dart';
-
-import 'scan_building_screen.dart';
 import 'navigation_assistance_screen.dart';
+import 'scan_building_screen.dart';
 
 class VoiceCommandScreen extends StatefulWidget {
   const VoiceCommandScreen({super.key});
@@ -21,8 +18,6 @@ class VoiceCommandScreen extends StatefulWidget {
 
 class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
   late stt.SpeechToText _speech;
-  late FlutterTts _tts;
-
   bool _isListening = false;
   String _spokenText = 'Tap the microphone and start speaking';
 
@@ -30,7 +25,6 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _tts = FlutterTts();
   }
 
   void _startListening() async {
@@ -49,44 +43,46 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
     if (available) {
       setState(() => _isListening = true);
 
-      _speech.listen(onResult: (result) async {
+      _speech.listen(onResult: (result) {
         final command = result.recognizedWords.toLowerCase();
-        setState(() => _spokenText = result.recognizedWords);
+        setState(() {
+          _spokenText = result.recognizedWords;
+        });
 
-        // === Direct keyword-based navigation ===
+        // Navigate if user says "scan"
         if (command.contains('scan')) {
-          await _tts.speak('Opening Scan Building screen');
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ScanBuildingScreen()),
           );
-          return;
         }
 
-        if (command.contains('navigate')) {
-          await _tts.speak('Opening Navigation Assistance screen');
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NavigationAssistanceScreen()),
-          );
-          return;
-        }
+        // Navigate to Navigation with voice command like "start from entrance to lift"
+        else if (command.contains('navigate') ||
+                 command.contains('start from') && command.contains('to')) {
+          final RegExp regex = RegExp(r'start from (.+?) to (.+)');
+          final match = regex.firstMatch(command);
 
-        // === Smart parsing: "start from entrance to lift" ===
-        final parsed = _parseRouteCommand(command);
-        if (parsed != null) {
-          final start = parsed['start'];
-          final end = parsed['end'];
-          await _tts.speak('Navigating from $start to $end');
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => NavigationAssistanceScreen(
-                initialStart: start,
-                initialEnd: end,
+          if (match != null) {
+            final String from = match.group(1)?.trim() ?? '';
+            final String to = match.group(2)?.trim() ?? '';
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => NavigationAssistanceScreen(
+                  voiceStart: from,
+                  voiceEnd: to,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            // fallback if format isn't matched
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NavigationAssistanceScreen()),
+            );
+          }
         }
       });
     }
@@ -95,27 +91,6 @@ class _VoiceCommandScreenState extends State<VoiceCommandScreen> {
   void _stopListening() {
     _speech.stop();
     setState(() => _isListening = false);
-  }
-
-  /// Parses voice command like: "start from entrance to lift"
-  /// Returns { start: 'entrance', end: 'lift' }
-  Map<String, String>? _parseRouteCommand(String input) {
-    final pattern = RegExp(r'(from|start from)\s+(\w[\w\s]*)\s+to\s+(\w[\w\s]*)');
-    final match = pattern.firstMatch(input);
-    if (match != null && match.groupCount == 3) {
-      return {
-        'start': match.group(2)!.trim(),
-        'end': match.group(3)!.trim(),
-      };
-    }
-    return null;
-  }
-
-  @override
-  void dispose() {
-    _speech.stop();
-    _tts.stop();
-    super.dispose();
   }
 
   @override
