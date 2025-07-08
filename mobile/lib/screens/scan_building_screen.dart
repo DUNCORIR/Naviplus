@@ -1,13 +1,15 @@
 // ======================================
 // File: lib/screens/scan_building_screen.dart
-// Description: Fetches and displays available buildings for scanning
+// Description: Fetches and displays available buildings using Building model
 // ======================================
 
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../models/building_model.dart';
 
-/// Displays a list of buildings retrieved from the backend.
-/// Users can select a building to proceed (future logic can navigate deeper).
+/// This screen displays a list of buildings fetched from the backend.
+/// Each building is shown in a card, and the user can tap on one
+/// (future logic may drill down into floors, rooms, etc.).
 class ScanBuildingScreen extends StatefulWidget {
   const ScanBuildingScreen({super.key});
 
@@ -16,19 +18,19 @@ class ScanBuildingScreen extends StatefulWidget {
 }
 
 class _ScanBuildingScreenState extends State<ScanBuildingScreen> {
-  late Future<List<dynamic>> _buildingListFuture;
+  late Future<List<Building>> _buildingListFuture; // Async fetch of buildings
 
   @override
   void initState() {
     super.initState();
-    _buildingListFuture = ApiService.fetchBuildings(); // Start API fetch
+    _buildingListFuture = ApiService.fetchBuildings(); // Start fetch on load
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Scan Building")),
-      body: FutureBuilder<List<dynamic>>(
+      body: FutureBuilder<List<Building>>(
         future: _buildingListFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -44,13 +46,13 @@ class _ScanBuildingScreenState extends State<ScanBuildingScreen> {
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            // No buildings found
+            // No buildings returned
             return const Center(
               child: Text('No buildings found.'),
             );
           }
 
-          // Success: Show list of buildings
+          // Success: Show the building list
           final buildings = snapshot.data!;
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
@@ -58,13 +60,15 @@ class _ScanBuildingScreenState extends State<ScanBuildingScreen> {
             itemBuilder: (context, index) {
               final building = buildings[index];
               return Card(
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(vertical: 8),
                 child: ListTile(
-                  title: Text(building['name'] ?? 'Unnamed Building'),
-                  subtitle: Text('ID: ${building['id']}'),
+                  title: Text(building.name),
+                  subtitle: Text('ID: ${building.id}'),
                   onTap: () {
-                    // Future logic: navigate to floors or amenities
+                    // Placeholder: Tapping a building could navigate deeper
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Selected: ${building['name']}')),
+                      SnackBar(content: Text('Selected: ${building.name}')),
                     );
                   },
                 ),
