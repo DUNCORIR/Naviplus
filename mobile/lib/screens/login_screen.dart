@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', data['token']);
+        await prefs.setString('authToken', data['token']);
 
         if (!mounted) return;
         Navigator.pushReplacement(
