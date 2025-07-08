@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'screens/map_screen.dart';
 
 // Screens used throughout the app
 import 'screens/voice_command_screen.dart';
@@ -44,6 +45,7 @@ class NaviplusApp extends StatelessWidget {
         '/scan': (context) => const ScanBuildingScreen(),
         '/navigate': (context) => const NavigationAssistanceScreen(),
         '/signup': (context) => const SignupScreen(),
+        '/map': (context) => const MapScreen(),
       },
     );
   }
