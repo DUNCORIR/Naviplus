@@ -1,79 +1,82 @@
-// =============================
+// =============================================
 // File: lib/screens/navigation_assistance_screen.dart
-// Description: Allows users to request navigation between two PLDs inside a building.
-// Uses Building and PLD models instead of raw Maps.
-// =============================
+// Description: Provides navigation assistance by allowing
+// users to select a building, start, and end locations.
+// Supports voice-injected start/end + TTS instructions.
+// =============================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/api_service.dart';
+
 import '../models/building_model.dart';
 import '../models/pld_model.dart';
+import '../services/api_service.dart';
 
 class NavigationAssistanceScreen extends StatefulWidget {
-  const NavigationAssistanceScreen({super.key});
+  final String? voiceStart;
+  final String? voiceEnd;
+
+  const NavigationAssistanceScreen({
+    super.key,
+    this.voiceStart,
+    this.voiceEnd,
+  });
 
   @override
-  State<NavigationAssistanceScreen> createState() => _NavigationAssistanceScreenState();
+  State<NavigationAssistanceScreen> createState() =>
+      _NavigationAssistanceScreenState();
 }
 
 class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen> {
-  final FlutterTts _tts = FlutterTts(); // Text-to-speech instance
+  final FlutterTts _tts = FlutterTts(); // For reading directions aloud
 
-  // List of buildings and PLDs fetched from backend
-  List<Building> _buildings = [];
-  List<PLD> _plds = [];
+  List<Building> _buildings = []; // Loaded buildings
+  List<PLD> _plds = [];           // PLDs within selected building
 
-  // User selections
-  int? _selectedBuilding;
-  String? _selectedStart;
-  String? _selectedEnd;
+  int? _selectedBuilding;         // Selected building ID
+  String? _selectedStart;         // Starting PLD
+  String? _selectedEnd;           // Destination PLD
 
-  // Resulting navigation instructions (spoken and displayed)
-  String _instructions = '';
-  bool _isLoading = false;
+  String _instructions = '';      // Instructions or errors
+  bool _isLoading = false;        // Loading state
 
   @override
   void initState() {
     super.initState();
-    _fetchBuildings(); // Load buildings on screen load
+    _fetchBuildings();
   }
 
-  /// Fetches list of buildings and loads last-used state from preferences
+  /// Fetch building list and previously selected inputs
   Future<void> _fetchBuildings() async {
     try {
       final data = await ApiService.fetchBuildings();
       setState(() => _buildings = data);
 
-      // Load previous selections (if any)
       final prefs = await SharedPreferences.getInstance();
-      setState(() {
-        _selectedBuilding = prefs.getInt('last_building');
-        _selectedStart = prefs.getString('last_start');
-        _selectedEnd = prefs.getString('last_end');
-      });
+      _selectedBuilding = prefs.getInt('last_building');
+      _selectedStart = widget.voiceStart ?? prefs.getString('last_start');
+      _selectedEnd = widget.voiceEnd ?? prefs.getString('last_end');
 
-      // If building previously selected, preload its PLDs
       if (_selectedBuilding != null) {
         await _fetchPLDs(_selectedBuilding!);
       }
-    } catch (e) {
+    } catch (_) {
       _speakAndSetError('Failed to load buildings.');
     }
   }
 
-  /// Fetches PLDs for the selected building
+  /// Fetch PLDs for selected building
   Future<void> _fetchPLDs(int buildingId) async {
     try {
       final plds = await ApiService.fetchPLDs(buildingId);
       setState(() => _plds = plds);
-    } catch (e) {
-      _speakAndSetError('Failed to load locations for this building.');
+    } catch (_) {
+      _speakAndSetError('Failed to load locations.');
     }
   }
 
-  /// Gets navigation steps and announces them
+  /// Fetch navigation instructions from API
   Future<void> _getNavigationSteps() async {
     if (_selectedBuilding == null || _selectedStart == null || _selectedEnd == null) {
       _speakAndSetError('Please select building, start, and destination.');
@@ -88,22 +91,21 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
         end: _selectedEnd!,
       );
 
-      final text = steps.join(". ");
-      setState(() => _instructions = text);
-      await _tts.speak(text);
+      final instructionText = steps.join('. ');
+      setState(() => _instructions = instructionText);
+      await _tts.speak(instructionText);
 
-      // Cache the selection
       final prefs = await SharedPreferences.getInstance();
       prefs.setInt('last_building', _selectedBuilding!);
       prefs.setString('last_start', _selectedStart!);
       prefs.setString('last_end', _selectedEnd!);
-    } catch (e) {
+    } catch (_) {
       _speakAndSetError('Failed to fetch directions.');
     }
     setState(() => _isLoading = false);
   }
 
-  /// Speaks error and updates UI
+  /// Speak and show an error
   void _speakAndSetError(String message) {
     _tts.speak(message);
     setState(() => _instructions = message);
@@ -130,19 +132,20 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
                 value: _selectedBuilding,
                 hint: const Text('Choose a building'),
                 isExpanded: true,
-                items: _buildings.map<DropdownMenuItem<int>>((b) {
+                items: _buildings.map((b) {
                   return DropdownMenuItem<int>(
                     value: b.id,
                     child: Text(b.name),
                   );
                 }).toList(),
-                onChanged: (value) {
+                onChanged: (val) async {
                   setState(() {
-                    _selectedBuilding = value;
+                    _selectedBuilding = val;
                     _selectedStart = null;
                     _selectedEnd = null;
+                    _plds = [];
                   });
-                  _fetchPLDs(value!);
+                  await _fetchPLDs(val!);
                 },
               ),
 
@@ -152,13 +155,13 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
                 value: _selectedStart,
                 hint: const Text('Choose start'),
                 isExpanded: true,
-                items: _plds.map<DropdownMenuItem<String>>((p) {
+                items: _plds.map((p) {
                   return DropdownMenuItem<String>(
                     value: p.name,
                     child: Text(p.name),
                   );
                 }).toList(),
-                onChanged: (value) => setState(() => _selectedStart = value),
+                onChanged: (val) => setState(() => _selectedStart = val),
               ),
 
               const SizedBox(height: 20),
@@ -167,13 +170,13 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
                 value: _selectedEnd,
                 hint: const Text('Choose destination'),
                 isExpanded: true,
-                items: _plds.map<DropdownMenuItem<String>>((p) {
+                items: _plds.map((p) {
                   return DropdownMenuItem<String>(
                     value: p.name,
                     child: Text(p.name),
                   );
                 }).toList(),
-                onChanged: (value) => setState(() => _selectedEnd = value),
+                onChanged: (val) => setState(() => _selectedEnd = val),
               ),
 
               const SizedBox(height: 30),
@@ -198,7 +201,7 @@ class _NavigationAssistanceScreenState extends State<NavigationAssistanceScreen>
 
   @override
   void dispose() {
-    _tts.stop(); // Stop TTS when screen is closed
+    _tts.stop();
     super.dispose();
   }
 }
