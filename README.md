@@ -203,3 +203,12 @@ flutter run
 * Improve TTS accessibility
 * Save navigation history locally
 * Integrate with real Google Indoor Maps (future)
+
+📞 Contact
+
+📧 Duncan Korir
+Email: duncorir@gmail.com
+LinkedIn: https://www.linkedin.com/in/duncorir
+GitHub: https://github.com/duncorir
+
+🔊 Making public buildings more accessible — one voice at a time!
