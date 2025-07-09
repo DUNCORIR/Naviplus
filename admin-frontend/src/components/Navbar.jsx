@@ -10,7 +10,7 @@ import '../styles/Navbar.css'; // Import stylesheet
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
+
 
   // On mount, check token presence
   useEffect(() => {
