@@ -89,10 +89,7 @@ Voice is parsed and routes the user accordingly.
 ```xml
 <meta-data
   android:name="com.google.android.geo.API_KEY"
-  android:value="YOUR_API_KEY_HERE"/>
-```
-
----
+  android:value="YOUR_API_KEY_HERE
 
 ## ✅ Roadmap
 
